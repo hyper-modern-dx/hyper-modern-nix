@@ -1,0 +1,14 @@
+.cache/
+amx-items
+elpa/
+ido.last
+init.el~
+lib/hyper-modern-use-package.el
+maas-neotek-dark.el
+recentf
+smex-items
+straight/build-cache.el
+straight/build/
+straight/repos/
+transient/
+tree-sitter/

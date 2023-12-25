@@ -22,7 +22,7 @@
   (color-green-one            "#7EE787" nil)
   (color-green-two            "#238636" nil)
   (color-green-three          "#319530" nil)
-  
+
   (color-blue-one             "#2F81F7" nil)
   (color-blue-two             "#37A3FF" nil)
   (color-blue-three           "#68BAFF" nil)
@@ -46,14 +46,18 @@
   (hl-line                         (:background color-gray-one   :foreground nil))
   (mode-line                       (:background color-gray-one   :foreground color-gray-three))
   (mode-line-inactive              (:background color-gray-one   :foreground color-gray-two))
-  (region                          (:background color-gray-two   :foreground nil))
+  (region                          (:background color-blue-two   :foreground color-lightest))
 
+  (success                         (:background nil              :foreground color-blue-three))
+  (match                           (:background nil              :foreground color-yellow-one))
+  
   (company-preview                 (:background color-gray-one   :foreground primary-fg))
   (company-tooltip                 (:background color-bg         :foreground primary-fg))
   (company-tooltip-common          (:background color-gray-one   :foreground color-blue-three))
   (company-tooltip-selection       (:background color-gray-one   :foreground color-lightest))
   (company-scrollbar-thumb         (:background color-bg         :foreground color-blue-three))
   (company-tooltip-scrollbar-track (:background color-gray-one   :foreground color-gray-one))
+
   (line-number-current-line        (:background color-gray-one   :foreground primary-fg))
   (isearch                         (:background primary-fg       :foreground color-bg))
   (isearch-fail                    (:background primary-fg       :foreground color-lightest))
@@ -79,7 +83,7 @@
   (trailing-whitespace             (:background color-lightest   :foreground nil))
   (line-number                     (:background nil              :foreground color-gray-one))
 
-  (lusty-directory-face            (:background nil              :foreground color-blue-one))
+  (lusty-directory-face            (:background nil              :foreground color-blue-three))
   (lusty-match-face                (:background nil              :foreground color-yellow-one))
   (lusty-file-face                 (:background nil              :foreground nil))
   (lusty-slash-face                (:background nil              :foreground nil))))

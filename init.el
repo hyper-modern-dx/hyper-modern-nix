@@ -95,12 +95,6 @@
   (set-face-italic 'font-lock-comment-face nil)
   (set-face-italic 'font-lock-comment-delimiter-face nil)
 
-  ;; (set-face-foreground
-  ;;  'vertical-border
-  ;;  ;; (face-background 'vertical-border nil t)
-  ;;  ;; (face-foreground 'vertical-border nil t)
-  ;;  )
-
   ;; global built-in modes (graphical)
   (when (display-graphic-p)
     (setq frame-resize-pixelwise t)
@@ -128,9 +122,10 @@
      mac-command-modifier 'none
      mac-option-modifier 'meta)
 
-    (add-hook 'window-setup-hook 'toggle-frame-fullscreen)
-    ;; (toggle-frame-fullscreen )
-    )
+    ; TODO(b7r6): this is godawful, do something about it...
+    (add-hook 'window-setup-hook (lambda ()
+                                   (toggle-frame-fullscreen)
+                                   (run-with-idle-timer 1 nil #'smart-split))))
 
   (add-to-list
    'custom-theme-load-path
@@ -157,8 +152,7 @@
 (use-package smart-split
   :straight (:type built-in)
   :load-path "lib"
-  :demand t
-  :hook (after-init . smart-split))
+  :after emacs)
 
 ;; global key bindings including utility functions
 (use-package general
@@ -203,7 +197,8 @@
   :commands format-all-mode
   :hook (prog-mode . format-all-mode)
   :config
-  (setq-default format-all-formatters '(("Shell" (shfmt "-i" "4" "-ci")))))
+  ;; (setq-default format-all-formatters '(("Shell" (shfmt "-i" "4" "-ci"))))
+  )
 
 ;;
 ;; `company`
@@ -277,7 +272,7 @@
 
 (use-package ono-sendai-hyper-modern-theme
   :after autothemer
-  
+
   :straight (:type built-in)
   :demand t
 
@@ -332,12 +327,9 @@
 
 (use-package eglot
   :ensure t
-  :config
-
-  (add-to-list 'eglot-server-programs '(java-ts-mode . ("java-language-server")))
-  :hook (java-ts-mode-hook . eglot-ensure)
-  :hook (python-ts-mode-hook . eglot-ensure)
-  :hook (c++-ts-mode-hook . eglot-ensure))
+  :hook (eglot-managed-mode . (lambda () (flymake-mode -1)))
+  :hook (prog-mode . eglot-ensure)
+  :hook (prog-mode . eldoc-mode))
 
 ;;
 ;; markdown
@@ -388,17 +380,14 @@
 ;; `java` support
 ;;
 
-(use-package google-java-format
-  :straight (:type built-in)
-  :load-path "lib"
-  :demand t
-
-  :config
-  (require 'google-java-format))
-
 (use-package java-ts-mode
-  :after (google-java-format)
-  :bind (:map java-ts-mode-map ("M-z" . google-java-format-buffer)))
+  :after eglot
+
+  :ensure t
+  :config
+  (setq java-ts-mode-indent-offset b7r6/indent-width)
+  (add-to-list 'eglot-server-programs '(nix-mode . ("rnix-lsp")))
+  :hook (java-ts-mode . (lambda () (setq format-all-formatters '(("Java" (clang-format)))))))
 
 ;;
 ;; `gradle`
@@ -428,8 +417,17 @@
 ;;
 
 (use-package prettier
+  :ensure t)
+
+(use-package typescript-ts-mode
+  :after prettier
+  :ensure t
+
   :config
-  (require 'prettier))
+  (setq typescript-ts-mode-indent-offset b7r6/indent-width)
+  :hook
+  (typescript-ts-mode . (lambda () (setq format-all-formatters '(("TypeScript" (prettier))))))
+  (tsx-ts-mode . (lambda () (setq format-all-formatters '(("TSX" (prettier)))))))
 
 ;; (use-package emacs-prisma-mode
 ;;   :straight (emacs-prisma-mode :type git :host github :repo "pimeys/emacs-prisma-mode.git")
@@ -472,32 +470,40 @@
 ;; unsorted
 ;;
 
-(use-package rainbow-mode)
-(use-package consult)
-(use-package autothemer)
+(use-package rainbow-mode
+  :ensure t)
 
-;; (defun eglot-eldoc-toggle-order+ ()
-;;   "Toggle the precedence of flymake notifications in eldoc."
-;;   (unless (bound-and-true-p eglot--managed-mode)
-;;     (user-error "Must be called from an `eglot' managed buffer")))
+(use-package consult
+  :ensure t)
 
-;; this pleasant little snippet unfucks the display of flymake vs. eldoc for c++
-;; at least some of the time...
-(add-hook
- 'eglot-managed-mode-hook
- (lambda ()
-   (if (bound-and-true-p eglot--managed-mode)
-       (let* ((pos (cl-position #'flymake-eldoc-function eldoc-documentation-functions)))
-	       (setq eldoc-documentation-functions
-	             (if (eq pos 0)
-		               (append (cdr eldoc-documentation-functions) (list #'flymake-eldoc-function))
-		             (append (list #'flymake-eldoc-function)
-			                   (if (zerop pos)
-			                       (cdr eldoc-documentation-functions)
-			                     (let ((last (nthcdr (1- pos) eldoc-documentation-functions)))
-			                       (setcdr last (cddr last))
-			                       eldoc-documentation-functions)))))
-	       (message "Message priority: %s"
-		              (if (eq pos 0)
-		                  (propertize "Documentation" 'face 'compilation-info)
-		                (propertize "Errors" 'face 'compilation-error)))))))
+(use-package autothemer
+  :ensure t)
+
+(use-package fontify-face
+  :ensure t)
+
+(use-package rg
+  :ensure t
+  :config
+  ;; Set default directory to search in
+  (setq rg-default-directory (expand-file-name "~/src"))
+
+  ;; Use ripgrep as the default search tool in Projectile
+  (setq projectile-use-rg t)
+
+  ;; Group search results by file
+  (setq rg-group-result t)
+
+  ;; Context lines: 2 lines before and after the match
+  (setq rg-context-line-count 2)
+
+  ;; Show search results in a new window
+  (setq rg-show-columns t)
+
+  ;; Keybindings
+  :bind (("C-c C-r" . rg)
+         ("C-c s p" . rg-project)
+         ("C-c s d" . rg-dwim)
+         ("C-c s l" . rg-list-searches)))
+
+;; Ensure ripgrep is installed on your system for rg.el to work effectively.
