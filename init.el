@@ -1,9 +1,8 @@
 ;;
-;; prelude (inspired by @ianyepan)
+;; prelude
 ;;
 
-;; `emacs` memory management tuning
-
+;; `emacs` memory management tuning (inspired by @ianyepan)
 (defvar file-name-handler-alist-original file-name-handler-alist)
 (setq gc-cons-threshold most-positive-fixnum
       gc-cons-percentage 0.6
@@ -50,8 +49,15 @@
   :ensure nil
 
   :preface
+  (defvar b7r6/ssh-key-name "id_ed25519_b7r6")
   (defvar b7r6/indent-width 2)
   (defvar b7r6/max-columns 80)
+
+  :init
+  ;; `ssk-agent` support for github packages
+  (shell-command
+   (format "ssh-add --apple-use-keychain ~/.ssh/%s" b7r6/ssh-key-name))
+  (setq straight-vc-git-default-protocol 'ssh)
 
   :config
   (setq user-full-name "b7r6")
@@ -135,8 +141,12 @@
   (load custom-file 'noerror 'nomessage)
 
   (setq-default visible-bell nil)
-  (setq-default ring-bell-function #'ignore)
-  )
+  (setq-default ring-bell-function #'ignore))
+
+(defalias 'yes-or-no-p 'y-or-n-p)
+(setq confirm-kill-emacs 'y-or-n-p)
+
+(add-hook 'after-init-hook 'smart-split)
 
 ;;
 ;; terminal
@@ -177,15 +187,25 @@
     (interactive)
     (kill-buffer (current-buffer)))
 
+  (defun visit-init-file ()
+    (interactive)
+    (find-file user-init-file)
+
+    )
+
   (general-define-key
-   "C-j"    'newline-and-indent
-   "M-N"    'windmove-right
-   "M-P"    'windmove-left
    "C-c f"  'show-current-file
    "C-c q"  'join-line
    "C-c r"  'revert-buffer
+   "C-j"    'newline-and-indent
+   "C-x C-+"  'text-scale-increase
+   "C-x C--"  'text-scale-decrease
+   "C-x f"  'toggle-frame-fullscreen
    "C-x k"  'kill-current-buffer
    "M-/"    'undo
+   "M-N"    'windmove-right
+   "M-P"    'windmove-left
+   "M-i"    'visit-init-file
    "M-z"    'format-all-region-or-buffer
    ))
 
@@ -356,7 +376,6 @@
 (use-package nix-mode
   :after nixpkgs-fmt
   :ensure t
-  :bind ("M-z" . nixpkgs-fmt-command)
   )
 
 ;;
@@ -419,17 +438,30 @@
 (use-package prettier
   :ensure t)
 
+(straight-use-package
+ '(compile-eslint :type git :host github :repo "Fuco1/compile-eslint"))
+
+(use-package compile-eslint
+  :ensure t
+  :config
+  (push 'eslint compilation-error-regexp-alist))
+
 (use-package typescript-ts-mode
   :after prettier
   :ensure t
 
   :config
   (setq typescript-ts-mode-indent-offset b7r6/indent-width)
+
+  (defun pnpm-lint ()
+    (interactive)
+    (compilation-start "pnpm lint" 'compilation-mode))
+
   :hook
   (typescript-ts-mode . (lambda () (setq format-all-formatters '(("TypeScript" (prettier))))))
   (tsx-ts-mode . (lambda () (setq format-all-formatters '(("TSX" (prettier)))))))
 
-;; (use-package emacs-prisma-mode
+;; (use- emacs-prisma-mode
 ;;   :straight (emacs-prisma-mode :type git :host github :repo "pimeys/emacs-prisma-mode.git")
 ;;   (require 'emacs-prisma-mode))
 
@@ -507,3 +539,8 @@
          ("C-c s l" . rg-list-searches)))
 
 ;; Ensure ripgrep is installed on your system for rg.el to work effectively.
+
+
+;;
+;; find a home
+;;
