@@ -58,6 +58,13 @@
   (company-scrollbar-thumb         (:background color-bg         :foreground color-blue-three))
   (company-tooltip-scrollbar-track (:background color-gray-one   :foreground color-gray-one))
 
+
+  (magit-section-highlight         (:background color-gray-one   :foreground nil))
+  (magit-header-line               (:background nil              :foreground color-yellow-one))
+
+  ;; (magit-section-heading           (:background nil              :foreground color-yellow-one))
+  ;; (magit-section-secondary-heading (:background nil              :foreground color-yellow-two))
+
   (line-number-current-line        (:background color-gray-one   :foreground primary-fg))
   (isearch                         (:background primary-fg       :foreground color-bg))
   (isearch-fail                    (:background primary-fg       :foreground color-lightest))

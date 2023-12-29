@@ -51,7 +51,7 @@
   :preface
   (defvar b7r6/ssh-key-name "id_ed25519_b7r6")
   (defvar b7r6/indent-width 2)
-  (defvar b7r6/max-columns 80)
+  (defvar b7r6/max-columns 100)
 
   :init
   ;; `ssk-agent` support for github packages
@@ -116,7 +116,7 @@
     (tool-bar-mode -1)
 
     (when (member "Berkeley Mono" (font-family-list))
-      (set-frame-font "Berkeley Mono-15:weight=bold")
+      (set-frame-font "Berkeley Mono-16:weight=bold")
 
       ;; start every frame fullscreen
       (add-to-list 'default-frame-alist '(fullscreen))
@@ -128,7 +128,7 @@
      mac-command-modifier 'none
      mac-option-modifier 'meta)
 
-    ; TODO(b7r6): this is godawful, do something about it...
+                                        ; TODO(b7r6): this is godawful, do something about it...
     (add-hook 'window-setup-hook (lambda ()
                                    (toggle-frame-fullscreen)
                                    (run-with-idle-timer 1 nil #'smart-split))))
@@ -144,16 +144,14 @@
   (setq-default ring-bell-function #'ignore))
 
 (defalias 'yes-or-no-p 'y-or-n-p)
-(setq confirm-kill-emacs 'y-or-n-p)
-
-(add-hook 'after-init-hook 'smart-split)
 
 ;;
 ;; terminal
 ;;
 
 (use-package vterm
-  :ensure t)
+  :ensure t
+  :hook (vterm-mode . (lambda () (setq-local global-hl-line-mode nil))))
 
 ;;
 ;; `smart-split`
@@ -194,19 +192,20 @@
     )
 
   (general-define-key
-   "C-c f"  'show-current-file
-   "C-c q"  'join-line
-   "C-c r"  'revert-buffer
-   "C-j"    'newline-and-indent
-   "C-x C-+"  'text-scale-increase
-   "C-x C--"  'text-scale-decrease
-   "C-x f"  'toggle-frame-fullscreen
-   "C-x k"  'kill-current-buffer
-   "M-/"    'undo
-   "M-N"    'windmove-right
-   "M-P"    'windmove-left
-   "M-i"    'visit-init-file
-   "M-z"    'format-all-region-or-buffer
+   "C-c f"   'show-current-file
+   "C-c q"   'join-line
+   "C-c r"   'revert-buffer
+   "C-j"     'newline-and-indent
+   "C-x C-+" 'text-scale-increase
+   "C-x C--" 'text-scale-decrease
+   "C-x f"   'toggle-frame-fullscreen
+   "C-x k"   'kill-current-buffer
+   "C-x C-r" 'rg-dwim-project-dir
+   "M-/"     'undo
+   "M-N"     'windmove-right
+   "M-P"     'windmove-left
+   "M-i"     'visit-init-file
+   "M-z"     'format-all-region-or-buffer
    ))
 
 ;;
@@ -461,46 +460,30 @@
   (typescript-ts-mode . (lambda () (setq format-all-formatters '(("TypeScript" (prettier))))))
   (tsx-ts-mode . (lambda () (setq format-all-formatters '(("TSX" (prettier)))))))
 
-;; (use- emacs-prisma-mode
-;;   :straight (emacs-prisma-mode :type git :host github :repo "pimeys/emacs-prisma-mode.git")
-;;   (require 'emacs-prisma-mode))
-
-;; (use-package jtsx-mode
-;;   :ensure t
-;;   ;; :after prettier
-;;   ;; :bind (:map typescript-ts- ("M-z" . prettier-prettify))
-;;   )
-
-;;
-;; python
-;;
-
-;; (use-package py-yapf
-;;   :ensure t)
-
-;; (use-package python-mode
-;;   :after py-yapf
-;;   :ensure t
-;;   :config
-
-;;   ;; (setq python-indent-guess-indent-offset (lambda ()))
-;;   :bind (:map python-ts-mode ("M-z" . py-yapf-buffer))
-;;   :hook (python-ts-mode . (lambda ()
-;;                             (setq python-indent-offset 2))))
-
-;;
-;; c++ suport
-;;
-
-;; (use-package c++-ts-mode
-;;   :init
-;;   (progn
-;;     (require 'c++-ts-mode)
-;;     (package-installed-p 'recentf)))
-
 ;;
 ;; unsorted
 ;;
+
+(use-package prisma-mode
+  :after eglot
+  :straight (prisma-mode
+             :type git
+             :host github
+             :repo "davidarenas/prisma-mode")
+  :config
+  (add-to-list 'eglot-server-programs '(prisma-mode . ("prisma-language-server"))))
+
+(use-package gptel
+  :ensure t
+  :init
+  ;; (setq 'gptel-api-key "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")
+  )
+
+(use-package llama-cpp
+  :ensure t)
+
+(use-package magit
+  :ensure t)
 
 (use-package rainbow-mode
   :ensure t)
@@ -513,6 +496,14 @@
 
 (use-package fontify-face
   :ensure t)
+
+(use-package current-window-only
+  :straight (current-window-only
+             :type git
+             :host github
+             :repo "FrostyX/current-window-only")
+  :config
+  (current-window-only-mode))
 
 (use-package rg
   :ensure t
@@ -537,10 +528,3 @@
          ("C-c s p" . rg-project)
          ("C-c s d" . rg-dwim)
          ("C-c s l" . rg-list-searches)))
-
-;; Ensure ripgrep is installed on your system for rg.el to work effectively.
-
-
-;;
-;; find a home
-;;
