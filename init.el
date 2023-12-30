@@ -456,6 +456,10 @@
     (interactive)
     (compilation-start "pnpm lint" 'compilation-mode))
 
+  (defun pnpm-build ()
+    (interactive)
+    (compilation-start "pnpm build" 'compilation-mode))
+
   :hook
   (typescript-ts-mode . (lambda () (setq format-all-formatters '(("TypeScript" (prettier))))))
   (tsx-ts-mode . (lambda () (setq format-all-formatters '(("TSX" (prettier)))))))
@@ -528,3 +532,12 @@
          ("C-c s p" . rg-project)
          ("C-c s d" . rg-dwim)
          ("C-c s l" . rg-list-searches)))
+
+;; TODO(b7r6): think of more awesome tags to put in here...
+;; TODO(everyone-else): consider living the `hyper-modern` life...
+(use-package svg-tag-mode
+  :ensure t
+  :config
+  (let tags
+    '(("TODO(b7r6):" . ((lambda (tag) (svg-tag-make "TODO(b7r6):" :inverse t :radius 0 :face 'font-lock-comment-face)))))
+    (setq svg-tag-tags tags)))
