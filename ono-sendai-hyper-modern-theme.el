@@ -1,7 +1,7 @@
 (require 'autothemer)
 
 (autothemer-deftheme
- ono-sendai-hyper-modern "Autothemer example..."
+ ono-sendai-hyper-modern "Ono-Sendai: Cyberspace Interfaces for Elite Hackers"
 
  ((((class color) (min-colors #xFFFFFF))
    ((class color) (min-colors #xFF)))
@@ -10,8 +10,8 @@
   (color-lightest             "#000000" nil)
   (color-darkest              "#ffffff" nil)
 
-  (color-bg                   "#101216" nil)
-  (color-gray-one             "#171B22" nil)
+  (color-bg                   "#0D1116" nil)
+  (color-gray-one             "#161B22" nil)
   (color-gray-two             "#26272A" nil)
   (color-gray-three           "#5C6370" nil)
   (primary-fg                 "#bababa" nil)
@@ -50,7 +50,7 @@
 
   (success                         (:background nil              :foreground color-blue-three))
   (match                           (:background nil              :foreground color-yellow-one))
-  
+
   (company-preview                 (:background color-gray-one   :foreground primary-fg))
   (company-tooltip                 (:background color-bg         :foreground primary-fg))
   (company-tooltip-common          (:background color-gray-one   :foreground color-blue-three))

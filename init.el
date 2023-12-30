@@ -1,5 +1,26 @@
 ;;
-;; prelude
+;; `hyper-modern`
+;;
+
+;;
+;; "On The Design Of Text Editors" - https://arxiv.org/abs/2008.06030
+;;
+
+;;
+;;
+;; “There is always a point at which the terrorist ceases to manipulate the media
+;;  gestalt. A point at which the violence may well escalate, but beyond which the terrorist
+;;  has become symptomatic of the media gestalt itself. Terrorism as we ordinarily
+;;  understand it is inately media-related. The Panther Moderns differ from other
+;;  terrorists precisely in their degree of self-consciousness, in their awareness of
+;;  the extent to which media divorce the act of terrorism from the original sociopolitical
+;;  intent.”
+;;
+;; “Skip it.” Case said.
+;;
+
+;;
+;; `prelude`
 ;;
 
 ;; `emacs` memory management tuning (inspired by @ianyepan)
@@ -116,7 +137,7 @@
     (tool-bar-mode -1)
 
     (when (member "Berkeley Mono" (font-family-list))
-      (set-frame-font "Berkeley Mono-16:weight=bold")
+      (set-frame-font "Berkeley Mono-15:weight=bold")
 
       ;; start every frame fullscreen
       (add-to-list 'default-frame-alist '(fullscreen))
@@ -128,10 +149,11 @@
      mac-command-modifier 'none
      mac-option-modifier 'meta)
 
-                                        ; TODO(b7r6): this is godawful, do something about it...
-    (add-hook 'window-setup-hook (lambda ()
-                                   (toggle-frame-fullscreen)
-                                   (run-with-idle-timer 1 nil #'smart-split))))
+    ;; TODO(b7r6): this is godawful, do something about it...
+    (add-hook
+     'window-setup-hook
+     (lambda ()
+       (toggle-frame-fullscreen))))
 
   (add-to-list
    'custom-theme-load-path
@@ -141,7 +163,24 @@
   (load custom-file 'noerror 'nomessage)
 
   (setq-default visible-bell nil)
-  (setq-default ring-bell-function #'ignore))
+  (setq-default ring-bell-function #'ignore)
+
+  (defadvice window-configuration-change-hook
+      (before switch-to-scratch activate)
+    "Switch to *scratch* buffer in the new window."
+    (let ((default-directory (buffer-file-name (current-buffer))))
+      (if (not (get-buffer "*scratch*"))
+          (progn
+            (find-file "*scratch*")
+            (setq default-directory (buffer-file-name (current-buffer)))))))
+
+  (defun switch-to-scratch ()
+    "Switch to *scratch* buffer."
+    (interactive)
+    (if (get-buffer "*scratch*")
+        (switch-to-buffer "*scratch*")))
+
+  ) ;; (use-package emacs)
 
 (defalias 'yes-or-no-p 'y-or-n-p)
 
@@ -400,11 +439,9 @@
 
 (use-package java-ts-mode
   :after eglot
-
   :ensure t
   :config
   (setq java-ts-mode-indent-offset b7r6/indent-width)
-  (add-to-list 'eglot-server-programs '(nix-mode . ("rnix-lsp")))
   :hook (java-ts-mode . (lambda () (setq format-all-formatters '(("Java" (clang-format)))))))
 
 ;;
@@ -477,12 +514,6 @@
   :config
   (add-to-list 'eglot-server-programs '(prisma-mode . ("prisma-language-server"))))
 
-(use-package gptel
-  :ensure t
-  :init
-  ;; (setq 'gptel-api-key "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")
-  )
-
 (use-package llama-cpp
   :ensure t)
 
@@ -538,6 +569,6 @@
 (use-package svg-tag-mode
   :ensure t
   :config
-  (let tags
-    '(("TODO(b7r6):" . ((lambda (tag) (svg-tag-make "TODO(b7r6):" :inverse t :radius 0 :face 'font-lock-comment-face)))))
-    (setq svg-tag-tags tags)))
+  (setq
+   svg-tag-tags
+   '(("TODO(b7r6):" . ((lambda (tag) (svg-tag-make "TODO" :inverse t :radius 0 :face 'font-lock-comment-face)))))))
