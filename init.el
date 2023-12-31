@@ -1,3 +1,5 @@
+;;; init.el --- -*- lexical-binding: t -*-
+
 ;;
 ;; `hyper-modern`
 ;;
@@ -75,9 +77,10 @@
   (defvar b7r6/max-columns 100)
 
   :init
-  ;; `ssk-agent` support for github packages
+  ;; `ssh-agent` support for github packages
   (shell-command
    (format "ssh-add --apple-use-keychain ~/.ssh/%s" b7r6/ssh-key-name))
+
   (setq straight-vc-git-default-protocol 'ssh)
 
   :config
@@ -98,13 +101,15 @@
   (setq pop-up-windows nil)
   (setq require-final-newline t)
   (setq resize-mini-windows nil)
-  (setq ring-bell-function 'ignore)  ; Removed duplicate
+  (setq ring-bell-function 'ignore)
   (setq scroll-conservatively 10000)
   (setq scroll-step 1)
-  (setq select-enable-clipboard t)  ; Removed duplicate
+  (setq select-enable-clipboard t)
   (setq split-height-threshold nil)
   (setq split-width-threshold nil)
   (setq transient-mark-mode t)
+  (setq cursor-in-non-selected-windows nil)
+  (setq backup-by-copying t)
 
   ;; global built-in modes
   (blink-cursor-mode t)
@@ -113,6 +118,9 @@
   (global-whitespace-mode -1)
   (menu-bar-mode -1)
   (show-paren-mode 1)
+  (display-time-mode 1)
+  (global-auto-revert-mode)
+  (fset 'yes-or-no-p 'y-or-n-p)
 
   ;; no pipes in vertical border
   (set-display-table-slot
@@ -227,9 +235,22 @@
   (defun visit-init-file ()
     (interactive)
     (find-file user-init-file)
-
     )
 
+  (defun rotate-windows ()
+    "Rotate the buffers between windows, keeping the current buffer in the selected window."
+    (interactive)
+    (let* ((original-buffer (current-buffer))
+           (windows (window-list))
+           (buffers (mapcar 'window-buffer windows))
+           (num-windows (length windows)))
+      (when (> num-windows 1)
+        (dotimes (i num-windows)
+          (set-window-buffer (nth i windows) (nth (mod (+ i 1) num-windows) buffers)))
+        ;; Find and select the window displaying the original buffer.
+        (let ((original-window (get-buffer-window original-buffer t)))
+          (when original-window
+            (select-window original-window))))))
   (general-define-key
    "C-c f"   'show-current-file
    "C-c q"   'join-line
@@ -245,6 +266,7 @@
    "M-P"     'windmove-left
    "M-i"     'visit-init-file
    "M-z"     'format-all-region-or-buffer
+   "C-M-r"   'rotate-windows
    ))
 
 ;;
@@ -571,4 +593,9 @@
   :config
   (setq
    svg-tag-tags
-   '(("TODO(b7r6):" . ((lambda (tag) (svg-tag-make "TODO" :inverse t :radius 0 :face 'font-lock-comment-face)))))))
+   '(("TODO(b7r6):" .
+      ((lambda (tag)
+         (svg-tag-make "TODO" :inverse t :radius 0 :face 'font-lock-comment-face))))))
+
+  (svg-tag-mode 1)
+  )

@@ -10,7 +10,7 @@
   (color-lightest             "#000000" nil)
   (color-darkest              "#ffffff" nil)
 
-  (color-bg                   "#0D1116" nil)
+  (color-bg                   "#101216" nil)
   (color-gray-one             "#161B22" nil)
   (color-gray-two             "#26272A" nil)
   (color-gray-three           "#5C6370" nil)
