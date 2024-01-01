@@ -1,0 +1,32 @@
+# razorgirl
+
+[colors]
+foreground = "#bababa"
+background = "#101216"
+cursor_bg = "#c9d1d9"
+cursor_border = "#c9d1d9"
+cursor_fg = "#ffffff"
+selection_bg = "#3b5070"
+selection_fg = "#ffffff"
+
+ansi = [
+  "#090909",
+   "#f78166",
+   "#8ddb8c",
+   "#f49b4f",
+   "#539bf5",
+   "#d5b7f4",
+   "#96cffe",
+   "#ffffff"
+]
+
+ brights = [
+   "#161B22",
+   "#f78166",
+   "#8ddb8c",
+   "#f49b4f",
+   "#539bf5",
+   "#d5b7f4",
+   "#96cffe",
+   "#ffffff"
+]

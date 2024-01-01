@@ -1,0 +1,24 @@
+format = "[// $directory$git_branch$env_var//](fg:#374257) "
+
+[directory]
+format="[($path)]($style) "
+style="#37A3FF"
+truncate_to_repo = true
+
+[git_branch]
+format="[($branch)]($style) "
+style="fg:#f49b4f"
+
+[env_var]
+format="[($env_value)]($style) "
+variable="__NIX_PS1__"
+style="#f78166"
+
+[character]
+disabled=true
+
+[battery]
+disabled = true
+
+scan_timeout = 10
+add_newline = false
