@@ -11,12 +11,12 @@
 ;;
 ;;
 ;; “There is always a point at which the terrorist ceases to manipulate the media
-;;  gestalt. A point at which the violence may well escalate, but beyond which the terrorist
-;;  has become symptomatic of the media gestalt itself. Terrorism as we ordinarily
-;;  understand it is inately media-related. The Panther Moderns differ from other
-;;  terrorists precisely in their degree of self-consciousness, in their awareness of
-;;  the extent to which media divorce the act of terrorism from the original sociopolitical
-;;  intent.”
+;;  gestalt. A point at which the violence may well escalate, but beyond which the
+;;  terrorist has become symptomatic of the media gestalt itself. Terrorism as we
+;;  ordinarily understand it is inately media-related. The Panther Moderns differ from
+;;  other terrorists precisely in their degree of self-consciousness, in their
+;;  awareness of the extent to which media divorce the act of terrorism from the
+;;  original sociopolitical intent.”
 ;;
 ;; “Skip it.” Case said.
 ;;
@@ -140,12 +140,12 @@
     (setq echo-keystrokes 0.02)
 
     (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-    (mac-auto-operator-composition-mode 1)
+    ;; (mac-auto-operator-composition-mode 1)
     (scroll-bar-mode -1)
     (tool-bar-mode -1)
 
     (when (member "Berkeley Mono" (font-family-list))
-      (set-frame-font "Berkeley Mono-15:weight=bold")
+      (set-frame-font "Berkeley Mono-13:weight=bold")
 
       ;; start every frame fullscreen
       (add-to-list 'default-frame-alist '(fullscreen))
@@ -306,7 +306,19 @@
 ;; `doom-modeline.el`
 ;;
 
+(use-package shrink-path
+  :straight (shrink-path
+             :type git
+             :host github
+             :repo "bennya/shrink-path.el"))
+
 (use-package doom-modeline
+  :after shrink-path
+  :straight (doom-modeline
+             :type git
+             :host github
+             :repo "seagle0128/doom-modeline")
+
   :ensure t
   :config
   (setq doom-modeline-project-detection 'auto)
