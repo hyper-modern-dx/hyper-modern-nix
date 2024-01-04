@@ -1,3 +1,5 @@
+;;; ono-sendai-hyper-modern-theme.el --- -*- lexical-binding: t -*-
+
 (require 'autothemer)
 
 (autothemer-deftheme
@@ -12,12 +14,13 @@
 
   (color-bg                   "#101216" nil)
   (color-gray-one             "#161B22" nil)
-  (color-gray-two             "#26272A" nil)
-  (color-gray-three           "#5C6370" nil)
+  (color-gray-two             "#1B1F23" nil)
+  (color-gray-three           "#26272A" nil)
+  (color-gray-four            "#5C6370" nil)
+
   (primary-fg                 "#bababa" nil)
 
   (bright-red                 "#F44747" nil)
-
 
   (color-green-one            "#7EE787" nil)
   (color-green-two            "#238636" nil)
@@ -47,6 +50,7 @@
   (mode-line                       (:background color-gray-one   :foreground color-gray-three))
   (mode-line-inactive              (:background color-gray-one   :foreground color-gray-two))
   (region                          (:background color-blue-two   :foreground color-lightest))
+  (posframe-border                 (:background color-blue-three :foreground nil))
 
   (success                         (:background nil              :foreground color-blue-three))
   (match                           (:background nil              :foreground color-yellow-one))

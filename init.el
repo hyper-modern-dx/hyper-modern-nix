@@ -22,34 +22,42 @@
 ;;
 
 ;;
-;; `prelude`
+;; `emacs` memory management prelude (inspired by @ianyepan)
 ;;
 
-;; `emacs` memory management tuning (inspired by @ianyepan)
 (defvar file-name-handler-alist-original file-name-handler-alist)
-(setq gc-cons-threshold most-positive-fixnum
-      gc-cons-percentage 0.6
-      file-name-handler-alist nil  ; Corrected variable name
-      site-run-file nil)
 
-(defvar b7r6/gc-cons-threshold (* 256 1024 1024))
-(add-hook 'emacs-startup-hook
-          (lambda ()
-            (setq gc-cons-threshold b7r6/gc-cons-threshold
-                  gc-cons-percentage 0.1
-                  file-name-handler-alist file-name-handler-alist-original)))
+(setq gc-cons-threshold        most-positive-fixnum
+      gc-cons-percentage       0.6
+      file-name-handler-alist  nil
+      site-run-file            nil)
 
-(add-hook 'minibuffer-setup-hook
-          (lambda ()
-            (setq gc-cons-threshold most-positive-fixnum)))
+(defvar hyper-modern/gc-cons-threshold (* 256 1024 1024))
 
-(add-hook 'minibuffer-exit-hook
-          (lambda ()
-            (garbage-collect)
-            (setq gc-cons-threshold b7r6/gc-cons-threshold)))
+(add-hook
+ 'emacs-startup-hook
+ (lambda ()
+   (setq gc-cons-threshold hyper-modern/gc-cons-threshold
+         gc-cons-percentage 0.1
+         file-name-handler-alist file-name-handler-alist-original)))
 
-;; bootstrap `straight.el`
+(add-hook
+ 'minibuffer-setup-hook
+ (lambda ()
+   (setq gc-cons-threshold most-positive-fixnum)))
+
+(add-hook
+ 'minibuffer-exit-hook
+ (lambda ()
+   (garbage-collect)
+   (setq gc-cons-threshold hyper-modern/gc-cons-threshold)))
+
+;;
+;; `straight.el` bootstrap prelude
+;;
+
 (defvar bootstrap-version)
+
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
       (bootstrap-version 5))
@@ -62,7 +70,8 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
-(setq straight-use-package-by-default t)
+(setq straight-vc-git-default-protocol 'ssh
+      straight-use-package-by-default  t)
 
 ;;
 ;; global `emacs` settings
@@ -75,51 +84,55 @@
   (defvar b7r6/ssh-key-name "id_ed25519_b7r6")
   (defvar b7r6/indent-width 2)
   (defvar b7r6/max-columns 100)
+  (defvar b7r6/font-family "Berkeley Mono")
+  (defvar b7r6/font-height 165)
+  (defvar b7r6/font-weight 'bold)
+  (defvar b7r6/posframe-width 128)
+  (defvar b7r6/posframe-height 16)
+  (defvar b7r6/completion-count 16)
 
   :init
-  ;; `ssh-agent` support for github packages
   (shell-command
    (format "ssh-add --apple-use-keychain ~/.ssh/%s" b7r6/ssh-key-name))
 
-  (setq straight-vc-git-default-protocol 'ssh)
-
   :config
   (setq user-full-name "b7r6")
-
   (setq-default default-directory "~/src")
   (setq-default indent-tabs-mode nil)
   (setq-default tab-width b7r6/indent-width)
 
-  (setq auto-save-default nil)
-  (setq confirm-kill-processes nil)
-  (setq debug-on-error nil)
-  (setq echo-keystrokes 0.1)
-  (setq indent-tabs-mode nil)
-  (setq inhibit-startup-message t)
-  (setq initial-scratch-message "")
-  (setq make-backup-files nil)
-  (setq pop-up-windows nil)
-  (setq require-final-newline t)
-  (setq resize-mini-windows nil)
-  (setq ring-bell-function 'ignore)
-  (setq scroll-conservatively 10000)
-  (setq scroll-step 1)
-  (setq select-enable-clipboard t)
-  (setq split-height-threshold nil)
-  (setq split-width-threshold nil)
-  (setq transient-mark-mode t)
-  (setq cursor-in-non-selected-windows nil)
-  (setq backup-by-copying t)
+  (setq auto-save-default               nil)
+  (setq confirm-kill-processes          nil)
+  (setq debug-on-error                  nil)
+  (setq echo-keystrokes                 0.1)
+  (setq indent-tabs-mode                nil)
+  (setq inhibit-startup-message           t)
+  (setq initial-scratch-message          "")
+  (setq make-backup-files               nil)
+  (setq pop-up-windows                  nil)
+  (setq require-final-newline             t)
+  (setq resize-mini-windows             nil)
+  (setq ring-bell-function          'ignore)
+  (setq scroll-conservatively         10000)
+  (setq scroll-step                       1)
+  (setq select-enable-clipboard           t)
+  (setq split-height-threshold          nil)
+  (setq split-width-threshold           nil)
+  (setq transient-mark-mode               t)
+  (setq cursor-in-non-selected-windows  nil)
+  (setq backup-by-copying                 t)
 
   ;; global built-in modes
-  (blink-cursor-mode t)
-  (column-number-mode 1)
-  (global-hl-line-mode 1)
-  (global-whitespace-mode -1)
-  (menu-bar-mode -1)
-  (show-paren-mode 1)
-  (display-time-mode 1)
-  (global-auto-revert-mode)
+  (blink-cursor-mode       +1)
+  (column-number-mode      +1)
+  (display-time-mode       +1)
+  (flymake-mode            -1)
+  (global-auto-revert-mode +1)
+  (global-hl-line-mode     +1)
+  (global-whitespace-mode  -1)
+  (menu-bar-mode           -1)
+  (show-paren-mode         +1)
+
   (fset 'yes-or-no-p 'y-or-n-p)
 
   ;; no pipes in vertical border
@@ -140,16 +153,17 @@
     (setq echo-keystrokes 0.02)
 
     (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-    ;; (mac-auto-operator-composition-mode 1)
     (scroll-bar-mode -1)
     (tool-bar-mode -1)
 
-    (when (member "Berkeley Mono" (font-family-list))
-      (set-frame-font "Berkeley Mono-13:weight=bold")
+    (when (member b7r6/font-family (font-family-list))
+      (set-face-attribute 'default nil :font b7r6/font-family :height b7r6/font-height :weight b7r6/font-weight)
+      (set-face-attribute 'fixed-pitch nil :font b7r6/font-family :height b7r6/font-height :weight b7r6/font-weight)
+      (set-face-attribute 'fixed-pitch-serif nil :font b7r6/font-family :height b7r6/font-height :weight b7r6/font-weight)
+      (set-face-attribute 'variable-pitch nil :font b7r6/font-family :height b7r6/font-height :weight b7r6/font-weight)
 
       ;; start every frame fullscreen
-      (add-to-list 'default-frame-alist '(fullscreen))
-      )
+      (add-to-list 'default-frame-alist '(fullscreen)))
 
     (setq
      mac-option-key-is-meta t
@@ -170,30 +184,14 @@
   (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
   (load custom-file 'noerror 'nomessage)
 
+  ;; TODO(b7r6): fix this...
+  (defalias 'yes-or-no-p 'y-or-n-p)
+
   (setq-default visible-bell nil)
-  (setq-default ring-bell-function #'ignore)
-
-  (defadvice window-configuration-change-hook
-      (before switch-to-scratch activate)
-    "Switch to *scratch* buffer in the new window."
-    (let ((default-directory (buffer-file-name (current-buffer))))
-      (if (not (get-buffer "*scratch*"))
-          (progn
-            (find-file "*scratch*")
-            (setq default-directory (buffer-file-name (current-buffer)))))))
-
-  (defun switch-to-scratch ()
-    "Switch to *scratch* buffer."
-    (interactive)
-    (if (get-buffer "*scratch*")
-        (switch-to-buffer "*scratch*")))
-
-  ) ;; (use-package emacs)
-
-(defalias 'yes-or-no-p 'y-or-n-p)
+  (setq-default ring-bell-function #'ignore))
 
 ;;
-;; terminal
+;; `vterm.el`
 ;;
 
 (use-package vterm
@@ -209,36 +207,45 @@
   :load-path "lib"
   :after emacs)
 
-;; global key bindings including utility functions
+;;
+;; key bindings and associated utilities
+;;
+
+(use-package which-key
+  :custom
+  (which-key-idle-delay 2)
+  :config
+  (which-key-mode))
+
 (use-package general
   :after format-all
   :ensure t
 
   :config
-  (defun what-face (pos)
+
+  (defun hyper-modern/what-face (pos)
     "Display the face at POS."
     (interactive "d")
     (let ((face (or (get-char-property (point) 'read-face-name)
                     (get-char-property (point) 'face))))
       (if face (message "Face: %s" face) (message "No face at %d" pos))))
 
-  (defun show-current-file ()
+  (defun hyper-modern/show-current-file ()
     "Print the current buffer filename to the minibuffer."
     (interactive)
     (message (buffer-file-name)))
 
-  (defun kill-current-buffer ()
+  (defun hyper-modern/kill-current-buffer ()
     "Kill the current buffer."
     (interactive)
     (kill-buffer (current-buffer)))
 
-  (defun visit-init-file ()
+  (defun hyper-modern/visit-init-file ()
     (interactive)
     (find-file user-init-file)
     )
 
-  (defun rotate-windows ()
-    "Rotate the buffers between windows, keeping the current buffer in the selected window."
+  (defun hyper-modern/rotate-windows ()
     (interactive)
     (let* ((original-buffer (current-buffer))
            (windows (window-list))
@@ -247,27 +254,127 @@
       (when (> num-windows 1)
         (dotimes (i num-windows)
           (set-window-buffer (nth i windows) (nth (mod (+ i 1) num-windows) buffers)))
-        ;; Find and select the window displaying the original buffer.
+
         (let ((original-window (get-buffer-window original-buffer t)))
           (when original-window
             (select-window original-window))))))
+
+  (defun hyper-modern/scratch ()
+    (let ((dir (if buffer-file-name
+                   (file-name-directory buffer-file-name)
+                 default-directory)))
+      (get-buffer-create (concat dir "elisp-scratch.el"))))
+
+  (defun hyper-modern/other ()
+    (let ((buf (other-buffer (current-buffer))))
+      (if (or (null buf) (eq buf (current-buffer)))
+          (hyper-modern/scratch)
+        buf)))
+
+  (defun hyper-modern/switch ()
+    (let ((nw (next-window))
+          (cb (current-buffer)))
+      (with-selected-window nw
+        (when (eq (window-buffer) cb)
+          (switch-to-buffer (hyper-modern/other))))))
+
+  (defun hyper-modern/hsplit (&optional size)
+    (interactive)
+    (split-window-right size)
+    (hyper-modern/switch))
+
+  (defun hyper-modern/vsplit (&optional size)
+    (interactive)
+    (split-window-below size)
+    (hyper-modern/switch))
+
   (general-define-key
-   "C-c f"   'show-current-file
+
+   ;; standard movement
+
    "C-c q"   'join-line
    "C-c r"   'revert-buffer
    "C-j"     'newline-and-indent
+
+   ;; frame mainpulation
+
    "C-x C-+" 'text-scale-increase
    "C-x C--" 'text-scale-decrease
-   "C-x f"   'toggle-frame-fullscreen
-   "C-x k"   'kill-current-buffer
    "C-x C-r" 'rg-dwim-project-dir
+   "C-x f"   'toggle-frame-fullscreen
+
+   ;; `b7r6` standard keys
+
    "M-/"     'undo
    "M-N"     'windmove-right
    "M-P"     'windmove-left
-   "M-i"     'visit-init-file
+   "M-i"     'hyper-modern/visit-init-file
    "M-z"     'format-all-region-or-buffer
-   "C-M-r"   'rotate-windows
+
+   ;; `hyper-modern` overrides
+
+   "C-M-r"   'hyper-modern/rotate-windows
+   "C-c f"   'hyper-modern/show-current-file
+   "C-x 2"   'hyper-modern/vsplit
+   "C-x 3"   'hyper-modern/hsplit
+   "C-x k"   'hyper-modern/kill-current-buffer
    ))
+
+;;
+;; `ono-sendai-hyper-modern-theme.el`
+;;
+
+(use-package ono-sendai-hyper-modern-theme
+  :after autothemer
+  :demand t
+  :straight (:type built-in)
+
+  :init
+  (load-theme 'ono-sendai-hyper-modern :no-confirm))
+
+;;
+;; completion
+;;
+
+(use-package fzf
+  :ensure t)
+
+(use-package amx
+  :ensure t
+  :config
+  (amx-mode))
+
+(use-package vertico
+  :ensure t
+  :init
+  (vertico-mode)
+  :custom
+  (vertico-cycle t))
+
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(orderless))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((command (styles orderless)))))
+
+(use-package posframe
+  :ensure t)
+
+(use-package vertico-posframe
+  :after vertico posframe
+  :ensure t
+
+  :config
+  (vertico-posframe-mode +1)
+
+  :custom
+  (vertico-posframe-parameters '((left-fringe . 8) (right-fringe . 8)))
+  (vertico-posframe-width b7r6/posframe-width)
+  (vertico-posframe-height b7r6/posframe-height)
+
+  (vertico-posframe-poshandler 'posframe-poshandler-frame-center)
+  (vertico-count b7r6/completion-count))
 
 ;;
 ;; `format-all`
@@ -276,9 +383,9 @@
 (use-package format-all
   :commands format-all-mode
   :hook (prog-mode . format-all-mode)
+
   :config
-  ;; (setq-default format-all-formatters '(("Shell" (shfmt "-i" "4" "-ci"))))
-  )
+  (setq-default format-all-formatters '(("Shell" (shfmt "-i" "4" "-ci")))))
 
 ;;
 ;; `company`
@@ -291,6 +398,8 @@
   :config
   (setq company-idle-delay 0.0)
   (global-company-mode)
+
+  ;; TODO(b7r6): use proper `:bind`...
   (bind-key* "C-M-i" 'company-complete-common-or-cycle))
 
 (use-package company-box
@@ -298,9 +407,18 @@
   :hook (company-mode . company-box-mode)
 
   :config
+
+  ;; TODO(b7r6): integrate with global font/face handling...
   (add-to-list
    'company-box-frame-parameters
    '(font . "Berkeley Mono-16:weight=bold")))
+
+;;
+;; `all-the-icons.el`
+;;
+
+(use-package all-the-icons
+  :ensure t)
 
 ;;
 ;; `doom-modeline.el`
@@ -313,27 +431,80 @@
              :repo "bennya/shrink-path.el"))
 
 (use-package doom-modeline
-  :after shrink-path
+  :after all-the-icons shrink-path
   :straight (doom-modeline
              :type git
              :host github
              :repo "seagle0128/doom-modeline")
 
-  :ensure t
   :config
-  (setq doom-modeline-project-detection 'auto)
+  (setq doom-modeline-buffer-modification-icon t)
+  (setq doom-modeline-buffer-state-icon t)
   (setq doom-modeline-icon t)
-  (setq doom-modeline-major-mode-icon t)
-  (setq doom-modeline-buffer-state-icon nil)
-  (setq doom-modeline-buffer-modification-icon nil)
-  (setq doom-modeline-unicode-fallback nil)
-  (setq doom-modeline-minor-modes nil)  ; Changed to nil for a cleaner look
   (setq doom-modeline-lsp t)
+  (setq doom-modeline-major-mode-icon t)
+  (setq doom-modeline-minor-modes nil)
+  (setq doom-modeline-project-detection 'auto)
+  (setq doom-modeline-unicode-fallback nil)
+
   :hook (after-init . doom-modeline-mode))
 
+;;
+;; `dashboard.el`
+;;
 
-(use-package all-the-icons
+(use-package dashboard-hackernews
   :ensure t)
+
+(use-package projectile
+  :ensure t)
+
+(use-package dashboard
+  :after (all-the-icons dashboard-hackernews projectile)
+
+  ;; seems like the latest versions do some fuckery with the project list or something.
+  ;; Need an extra refresh after initialization for my own settings to show up now.
+  ;; (did not need this before. Would rather keep the :custom block instead of setq spamming)
+  :custom
+
+  (dashboard-banner-logo-title
+   "it was the style that mattered and the style was the same.\nthe moderns were mercenaries, practical jokers, nihilistic tehcnofetishists.")
+
+  (dashboard-center-content t)
+  (dashboard-set-navigator t)
+  (dashboard-navigator-buttons
+   '((("⤓" " Install system package" " Install system package" (lambda (&rest _) (helm-system-packages))))))
+
+  (dashboard-icon-type 'all-the-icons)
+
+  ;; TODO: enable again when they work
+  ;;       https://github.com/emacs-dashboard/emacs-dashboard/issues/459
+  (dashboard-set-heading-icons nil)
+
+
+  ;; TODO: see if we can activate the footer again in the future
+  ;;       Seems like nil gets sent to the insert function now. Unsure if it happens pre Emacs 29
+  ;;       The first element is an icon, so might be related to the other icon issues.
+  (dashboard-set-footer nil)
+
+  (dashboard-set-file-icons t)
+  (dashboard-items '((projects . 5)
+                     (recents . 5)
+                     (hackernews . 5)))
+
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
+  (setq dashboard-display-icons-p t)
+
+  (dashboard-startup-banner "~/.emacs.d/hyper-modern.png")
+
+  (dashboard-setup-startup-hook)
+
+  :hook (after-init . dashboard-open))
+
+;;
+;; `treemacs.el`
+;;
 
 (use-package treemacs-all-the-icons
   :ensure t)
@@ -344,49 +515,6 @@
 
   :config
   (treemacs-load-theme "all-the-icons"))
-
-;; (use-package doom-themes
-;;   :ensure t
-;;   :config
-;;   ;; Global settings (defaults)
-;;   (setq doom-themes-enable-bold nil    ; if nil, bold is universally disabled
-;;         doom-themes-enable-italic nil) ; if nil, italics is universally disabled
-
-;;   ;; Enable custom neotree theme (all-the-icons must be installed!)
-;;   (doom-themes-neotree-config)
-;;   ;; or for treemacs users
-
-;;   (setq doom-themes-treemacs-theme "doom-colors") ; use "doom-colors" for less minimal icon theme
-
-;;   (doom-themes-treemacs-config)
-;;   ;; Corrects (and improves) org-mode's native fontification.
-;;   (doom-themes-org-config))
-
-(use-package ono-sendai-hyper-modern-theme
-  :after autothemer
-
-  :straight (:type built-in)
-  :demand t
-
-  :init
-  (load-theme 'ono-sendai-hyper-modern :no-confirm))
-
-;; Load fzf
-(use-package fzf
-  :ensure t)
-
-;;
-;; completion
-;;
-
-(use-package smex
-  :ensure t
-  :bind ("M-x" . smex))
-
-(use-package lusty-explorer
-  :ensure t
-  :config
-  (lusty-explorer-mode))
 
 ;;
 ;; paredit
@@ -409,19 +537,28 @@
 (use-package treesit-auto
   :custom
   (treesit-auto-install t)
+
   :config
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
 ;;
-;; `eglot`
+;; `eglot` / `eldoc`
 ;;
 
 (use-package eglot
   :ensure t
+
+  :config
+  (setq eglot-stay-out-of '("flymake" "company"))
+
   :hook (eglot-managed-mode . (lambda () (flymake-mode -1)))
   :hook (prog-mode . eglot-ensure)
   :hook (prog-mode . eldoc-mode))
+
+(use-package eldoc-box
+  :ensure t
+  :hook (prog-mode . eldoc-box-hover-at-point-mode))
 
 ;;
 ;; markdown
@@ -442,13 +579,11 @@
 ;;
 
 (use-package nixpkgs-fmt
-  :ensure t
-  )
+  :ensure t)
 
 (use-package nix-mode
   :after nixpkgs-fmt
-  :ensure t
-  )
+  :ensure t)
 
 ;;
 ;; `bazel` support
@@ -476,7 +611,31 @@
   :ensure t
   :config
   (setq java-ts-mode-indent-offset b7r6/indent-width)
-  :hook (java-ts-mode . (lambda () (setq format-all-formatters '(("Java" (clang-format)))))))
+
+  (add-to-list
+   'eglot-server-programs
+   '(java-ts-mode . ("java-language-server")))
+
+  :hook (java-ts-mode . (lambda () (setq format-all-formatters '(("Java" (clang-format))))))
+  :mode "\\.java\\'")
+
+;;
+;; `kotlin` support
+;;
+
+(use-package kotlin-ts-mode
+  :straight (:host gitlab :repo "bricka/emacs-kotlin-ts-mode")
+  :config
+  (setq kotlin-ts-mode-indent-offset b7r6/indent-width)
+
+  ;; :hook (kotlin-ts-mode . (lambda () (setq format-all-formatters '(("Kotlin" (ktlint))))))
+  :mode "\\.kts?\\'")
+
+;; (define-format-all-formatter ktlint
+;;   (:executable "ktlint")
+;;   (:install (macos "brew install ktlint"))
+;;   (:modes kotlin-mode)
+;;   (:format (format-all--buffer-easy executable "--format" "-l" "error" "--stdin")))
 
 ;;
 ;; `gradle`
@@ -500,6 +659,19 @@
 (use-package swift-mode
   :after (swift-format)
   :bind (:map swift-mode-map ("M-z" . swift-format-buffer)))
+
+;;
+;; `prisma` support
+;;
+
+(use-package prisma-mode
+  :after eglot
+  :straight (prisma-mode
+             :type git
+             :host github
+             :repo "davidarenas/prisma-mode")
+  :config
+  (add-to-list 'eglot-server-programs '(prisma-mode . ("prisma-language-server"))))
 
 ;;
 ;; `typescript` support
@@ -538,15 +710,6 @@
 ;;
 ;; unsorted
 ;;
-
-(use-package prisma-mode
-  :after eglot
-  :straight (prisma-mode
-             :type git
-             :host github
-             :repo "davidarenas/prisma-mode")
-  :config
-  (add-to-list 'eglot-server-programs '(prisma-mode . ("prisma-language-server"))))
 
 (use-package llama-cpp
   :ensure t)
@@ -598,8 +761,7 @@
          ("C-c s d" . rg-dwim)
          ("C-c s l" . rg-list-searches)))
 
-;; TODO(b7r6): think of more awesome tags to put in here...
-;; TODO(everyone-else): consider living the `hyper-modern` life...
+;; TODO(b7r6): finish adding v0.1.0 tags...
 (use-package svg-tag-mode
   :ensure t
   :config
@@ -609,5 +771,4 @@
       ((lambda (tag)
          (svg-tag-make "TODO" :inverse t :radius 0 :face 'font-lock-comment-face))))))
 
-  (svg-tag-mode 1)
-  )
+  (svg-tag-mode))
