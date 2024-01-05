@@ -473,7 +473,7 @@
   (dashboard-center-content t)
   (dashboard-set-navigator t)
   (dashboard-navigator-buttons
-   '((("⤓" " Install system package" " Install system package" (lambda (&rest _) (helm-system-packages))))))
+   '(((" " "RELOAD // INIT " "" (lambda (&rest _) (load-file user-init-file))))))
 
   (dashboard-icon-type 'all-the-icons)
 
@@ -772,3 +772,9 @@
          (svg-tag-make "TODO" :inverse t :radius 0 :face 'font-lock-comment-face))))))
 
   (svg-tag-mode))
+
+(use-package current-window-only
+  :straight (current-window-only
+             :type git
+             :host github
+             :repo "FrostyX/current-window-only")  )
