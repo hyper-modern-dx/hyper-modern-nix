@@ -1,117 +1,151 @@
-;;; hyper-modern-polyglot.el --- Description -*- lexical-binding: t -*-
+;;; hyper-modern/polyglot/llama-cpp.el --- A client for llama-cpp server -*- lexical-binding: t; -*-
 
-;; Author: AI Assistant
-;; Version: 0.1
-;; Package-Requires: ((emacs "29.1"))
-;; Keywords: ai, polyglot, tools
-;; URL: https://example.com/hyper-modern-polyglot.el
+;; Copyright (C) 2023 Evgeny Kurnevsky <kurnevsky@gmail.com>
+
+;; Version: 1.0.0
+;; Package-Requires: ((emacs "27.1") (dash "2.19.1"))
+;; Author: Evgeny Kurnevsky <kurnevsky@gmail.com>
+;; Keywords: tools
+;; URL: https://github.com/kurnevsky/llama.el
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;; This module provides interaction with AI agents, supporting the
-;; OpenAI API for assistants and tools for extensive customization.
+
+;; An Emacs client for interacting with the `llama-cpp' server:
+;; https://github.com/ggerganov/llama.cpp/tree/master/examples/server
 
 ;;; Code:
 
-(require 'auth-source)
-(require 'dash)
-(require 'json)
-(require 'request)
 (require 'url-http)
+(require 'dash)
 
-(defgroup hyper-modern-polyglot nil
-  "Customization group for the hyper-modern-polyglot Emacs module."
-  :group 'external)
+(defgroup hyper-modern/polyglot--llama-cpp nil
+  "Llama-cpp client."
+  :group 'tools)
 
-(defcustom hyper-modern-polyglot-openai-api-url "https://api.openai.com/v1/engines/davinci-codex/completions"
-  "The URL for the OpenAI API."
+(defface hyper-modern/polyglot--llama-cpp-host-face
+  (make-face 'special)
+  "Face for hyper-modern/polyglot--llama-cpp host.")
+
+(defface hyper-modern/polyglot--llama-cpp-port-face
+  (make-face 'special)
+  "Face for hyper-modern/polyglot--llama-cpp port.")
+
+(defface hyper-modern/polyglot--llama-cpp-params-face
+  (make-face 'special)
+  "Face for hyper-modern/polyglot--llama-cpp params.")
+
+(defcustom hyper-modern/polyglot--llama-cpp-host "localhost"
+  "Host of the llama-cpp server."
   :type 'string
-  :group 'hyper-modern-polyglot)
+  :group 'hyper-modern/polyglot--llama-cpp)
 
-(defcustom hyper-modern-llama-cpp-api-url "http://127.0.01:8080"
-  "The URL for llama.cpp's HTTP server."
+(defface hyper-modern/polyglot--llama-cpp-n-predict-face
+  (make-face 'special)
+  "Face for hyper-modern/polyglot--llama-cpp n_predict.")
+
+(defcustom hyper-modern/polyglot--llama-cpp-port 8080
+  "Port of the llama-cpp server."
+  :type 'natnum
+  :group 'hyper-modern/polyglot--llama-cpp)
+
+(defface hyper-modern/polyglot--llama-cpp-n-probs-face
+  (make-face 'special)
+  "Face for hyper-modern/polyglot--llama-cpp n_probs.")
+
+(defcustom hyper-modern/polyglot--llama-cpp-params '(:n_predict -1 :n_probs 3)
+  "Parameters for the llama-cpp /completion request."
+  :type '(alist :key-type (symbol :tag "Parameter")
+                :value-type (sexp :tag "Value"))
+  :group 'hyper-modern/polyglot--llama-cpp)
+
+(defvar hyper-modern/polyglot--llama-cpp--process "hyper-modern-polyglot--llama-cpp"
+  "Name of the Llama CPP client process."
   :type 'string
-  :group 'hyper-modern-polyglot)
+  :group 'hyper-modern/polyglot--llama-cpp)
 
-(defcustom hyper-modern-polyglot-openai-api-key nil
-  "The API key for the OpenAI API."
-  :type '(choice (const :tag "Not Set" nil)
-                 (string :tag "API Key"))
-  :group 'hyper-modern-polyglot)
+(defvar hyper-modern/polyglot--llama-cpp--process-buffer "*hyper-modern-polyglot--llama-cpp*"
+  "Buffer for the Llama CPP client process output."
+  :type 'string
+  :group 'hyper-modern/polyglot--llama-cpp)
 
-(defconst hyper-modern-polyglot-log-buffer "*Hyper-Modern-Polyglot-Log*"
-  "Name of the log buffer used by the hyper-modern-polyglot module.")
+(defvar hyper-modern/polyglot--llama-cpp--rx (rx bol "data: " (group (+ nonl)) eol "\n")
+  "Regex to match json data in chunked response."
+  :type 'regexp
+  :group 'hyper-modern/polyglot--llama-cpp)
 
-(defun hyper-modern/polyglot-log (message &rest args)
-  "Log MESSAGE and ARGS to the hyper-modern/polyglot log buffer."
-  (interactive "s")
-  (let ((log-message (apply 'format message args)))
-    (with-current-buffer (get-buffer-create hyper-modern-polyglot-log-buffer)
-      (goto-char (point-max))
-      (insert (format "%s\n" log-message)))))
-
-(defun hyper-modern/polyglot--read-credentials ()
-  "Retrieve the API key for OpenAI from either `hyper-modern/polyglot-api-key' or the auth source."
-  (interactive)
-  ;; You need to implement this function, as it is not provided in the original code.
-  (error "`hyper-modern/polyglot--read-credentials' needs to be implemented."))
-
-(defun hyper-modern/polyglot--send-request (api-url api-key input-text callback)
-  "Send a request to the OpenAI API with INPUT-TEXT and invoke CALLBACK with the response."
-  ;; The `url-http' library is not used in this function, you can remove it from the require statement.
-  (hyper-modern/polyglot-log "Sending request to %s with input: %s" api-url input-text)
-  (let ((headers (if api-key `(("Content-Type" . "application/json")
-                               ("Authorization" . ,(format "Bearer %s" api-key)))
-                   `(("Content-Type" . "application/json")))))
-    (request
-      api-url
-      :type "POST"
-      :headers headers
-      :data (json-encode `(("prompt" . ,input-text)))
-      :parser 'json-read
-      :success (cl-function
-                (lambda (&key response &allow-other-keys)
-                  (hyper-modern/polyglot-log "Request successful: %S" response)
-                  (funcall callback response)))
-      :error (cl-function
-              (lambda (&key error-thrown &allow-other-keys)
-                (hyper-modern/polyglot-log "Error sending request: %S" error-thrown)
-                (message "Error sending request: %S" error-thrown))))))
-
-(defun hyper-modern/polyglot-display-response (response)
-  "Display the RESPONSE from the OpenAI API."
-  (let ((output (assoc-default 'choices response)))
-    (when output
-      (let ((text (assoc-default 'text (aref output 0))))
-        (with-current-buffer (get-buffer-create "*Hyper-Modern/Polyglot-Output*")
-          (erase-buffer) ; Erases previous content
-          (insert text)
-          (goto-char (point-min))
-          (display-buffer (current-buffer)))))))
-
-(defun hyper-modern/polyglot-ask-openai (input-text)
-  "Ask the OpenAI assistant with INPUT-TEXT and display the response."
-  (interactive "sOpenAI Prompt: ")
-  (let ((api-key (hyper-modern/polyglot--read-credentials)))
-    (if api-key
-        (hyper-modern/polyglot-send-request hyper-modern-polyglot-openai-api-url
-                                            api-key
-                                            input-text
-                                            'hyper-modern/polyglot-display-response)
-      (message "No API key available. Please set `hyper-modern/polyglot-api-key' or configure it in your auth-source."))))
-
-(defun hyper-modern/ask-llama-cpp (input-text)
-  "Ask the llama.cpp assistant with INPUT-TEXT and display the response."
-  (interactive "sllama.cpp Prompt: ")
-
-  ;; You need to implement this function, as it is not provided in the original code.
-  (error "`hyper-modern/ask-llama-cpp' needs to be implemented."))
+(defvar hyper-modern/polyglot--llama-cpp--start 0
+  "Index for matching regex in the buffer."
+  :type 'integer
+  :group 'hyper-modern/polyglot--llama-cpp)
 
 ;;;###autoload
-(defun hyper-modern/polyglot-llama-cpp-complete (prompt callback)
-  "Complete the PROMPT using llama-cpp server. CALLBACK is called multiple times after a new token generated. It cancels the previous running llama generation if any."
-  ;; You need to implement this function, as it is not provided in the original code.
-  (error "`hyper-modern/polyglot-llama-cpp-complete' needs to be implemented."))
+(defun hyper-modern/polyglot--llama-cpp-complete (prompt callback)
+  "Complete the PROMPT using llama-cpp server.
+CALLBACK is called multiple times after a new token generated.
 
-(provide 'hyper-modern-polyglot)
+It cancels the previous running llama generation if any."
+  (interactive-assert (and (stringp prompt) (functionp callback)))
+  (hyper-modern/polyglot--llama-cpp-cancel) ; Cancel the previous process if running
+  (let* ((buffer (get-buffer-create hyper-modern/polyglot--llama-cpp--process-buffer))
+         (process (make-network-process
+                   :name hyper-modern/polyglot--llama-cpp--process
+                   :buffer buffer
+                   :host hyper-modern/polyglot--llama-cpp-host
+                   :service hyper-modern/polyglot--llama-cpp-port
+                   :filter (-partial #'hyper-modern/polyglot--llama-cpp--process-filter callback))))
+    (url-http-post-request process ; Use url-http-post-request instead of make-network-process directly
+                           (hyper-modern/polyglot--llama-cpp--completion-url) ; Add the function to get completion URL
+                           :content (hyper-modern/polyglot--llama-cpp--request-body prompt)))) ; Call the function to create request body
 
-;;; hyper-modern-polyglot.el ends here
+(defconst hyper-modern/polyglot--llama-cpp--completion-url ()
+  "Llama-cpp completion URL."
+  (format "http://%s:%d/completion" hyper-modern/polyglot--llama-cpp-host hyper-modern/polyglot--llama-cpp-port)
+  :type 'string
+  :group 'hyper-modern/polyglot--llama-cpp)
+
+(defun hyper-modern/polyglot--llama-cpp--request-body (prompt)
+  "Llama-cpp POST request body for the PROMPT."
+  (let ((url-http-method) ; Not used, can be removed
+        (url-http-proxy nil)
+        (url-http-target-url (url-generic-parse-url (hyper-modern/polyglot--llama-cpp--completion-url)))
+        (url-http-referer nil)
+        (url-http-extra-headers `(("Content-Type" . "application/json; charset=utf-8")))
+        (url-http-data
+         (encode-coding-string
+          (json-serialize (append '(:prompt prompt :stream t) hyper-modern/polyglot--llama-cpp-params)) 'utf-8 t)))
+                                        ; url-http-create-request is not needed here, as we will send the request using url-http-post-request later.
+    ))
+
+(defun hyper-modern/polyglot--llama-cpp-cancel ()
+  "Cancel the running llama process.
+It will terminate TCP connection and stop server computations."
+  (interactive)
+  (when-let ((process (get-process hyper-modern/polyglot--llama-cpp--process)))
+    (delete-process process))
+  (when-let ((buffer (get-buffer hyper-modern/polyglot--llama-cpp--process-buffer)))
+    (kill-buffer buffer)))
+
+;;;###autoload
+(defun hyper-modern/polyglot--llama-cpp-test ()
+  "Test the llama-cpp completion function."
+  (interactive)
+  (unwind-protect
+      (progn
+        (hyper-modern/polyglot--llama-cpp-complete "Hello, world!" #'ignore))
+    ;; Clean up code
+    ))
+
+(provide 'hyper-modern/polyglot--llama-cpp)

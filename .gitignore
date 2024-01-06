@@ -13,3 +13,5 @@ straight/repos/
 transient/
 tree-sitter/
 auto-save-list
+projectile-bookmarks.eld
+request
