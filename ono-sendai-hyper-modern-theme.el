@@ -17,6 +17,7 @@
   (color-gray-two             "#1B1F23" nil)
   (color-gray-three           "#26272A" nil)
   (color-gray-four            "#5C6370" nil)
+  (color-gray-five            "#1B1F23" nil)
 
   (primary-fg                 "#bababa" nil)
 
@@ -39,6 +40,8 @@
   (color-yellow-one           "#FDA656" nil)
   (color-yellow-two           "#C68243" nil)
   (color-yellow-three         "#A86E39" nil)
+
+  (color-orange-one           "#FFAB70" nil)
   )
 
 
@@ -47,10 +50,11 @@
 
   (default                         (:background color-bg         :foreground primary-fg))
   (hl-line                         (:background color-gray-one   :foreground nil))
-  (mode-line                       (:background color-gray-one   :foreground color-gray-three))
+  (cursor                          (:background color-orange-one :foreground color-orange-one))
+  (mode-line                       (:background color-gray-one   :foreground color-gray-four))
   (mode-line-inactive              (:background color-gray-one   :foreground color-gray-two))
   (region                          (:background color-blue-two   :foreground color-lightest))
-  (posframe-border                 (:background color-blue-three :foreground nil))
+  (posframe-border                 (:background color-blue-four  :foreground nil))
 
   (success                         (:background nil              :foreground color-blue-three))
   (match                           (:background nil              :foreground color-yellow-one))

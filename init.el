@@ -84,9 +84,11 @@
   (defvar b7r6/ssh-key-name "id_ed25519_b7r6")
   (defvar b7r6/indent-width 2)
   (defvar b7r6/max-columns 100)
+
   (defvar b7r6/font-family "Berkeley Mono")
-  (defvar b7r6/font-height 165)
-  (defvar b7r6/font-weight 'bold)
+  (defvar b7r6/font-height 155)
+  (defvar b7r6/font-weight 'semibold)
+
   (defvar b7r6/posframe-width 128)
   (defvar b7r6/posframe-height 16)
   (defvar b7r6/completion-count 16)
@@ -98,9 +100,14 @@
   :config
   (setq user-full-name "b7r6")
   (setq-default default-directory "~/src")
-  (setq-default indent-tabs-mode nil)
-  (setq-default tab-width b7r6/indent-width)
 
+  ;; indent width
+  (setq-default indent-tabs-mode nil)               ; Use spaces instead of tabs
+  (setq-default tab-width        b7r6/indent-width) ; Set width for automatic tabs
+  (setq-default c-basic-offset   b7r6/indent-width) ; Set offset for languages using C style indentation
+  (setq-default standard-indent  b7r6/indent-width) ; Set default number of spaces for indentation
+
+  ;; modern global defautls
   (setq auto-save-default               nil)
   (setq confirm-kill-processes          nil)
   (setq debug-on-error                  nil)
@@ -381,11 +388,19 @@
 ;;
 
 (use-package format-all
+  :straight t
   :commands format-all-mode
   :hook (prog-mode . format-all-mode)
 
+  :init
+
   :config
-  (setq-default format-all-formatters '(("Shell" (shfmt "-i" "4" "-ci")))))
+  (define-format-all-formatter hyper-modern-ktlint
+    (:executable "ktlint")
+    (:install (macos "brew install ktlint"))
+    (:languages "Kotlin")
+    (:features)
+    (:format (format-all--buffer-easy executable "--log-level=none" "--fix" "--format" "--stdin"))))
 
 ;;
 ;; `company`
@@ -496,7 +511,7 @@
   (setq dashboard-set-file-icons t)
   (setq dashboard-display-icons-p t)
 
-  (dashboard-startup-banner "~/.emacs.d/hyper-modern.png")
+  (dashboard-startup-banner "~/.emacs.d/hyper-modern-logo.svg")
 
   (dashboard-setup-startup-hook)
 
@@ -623,13 +638,152 @@
 ;; `kotlin` support
 ;;
 
-(use-package kotlin-ts-mode
-  :straight (:host gitlab :repo "bricka/emacs-kotlin-ts-mode")
-  :config
+(use-package kotlin-mode
+  :ensure t
+
+  :mode ("\\.kt\\'" . kotlin-ts-mode)
+  :mode ("\\.kts?\\'" . kotlin-ts-mode)
+
+  :init
+  (setq kotlin-mode-indent-offset b7r6/indent-width)
+  (setq kotlin-mode-indent-offset b7r6/indent-width)
+  (setq kotlin-tab-width b7r6/indent-width)
   (setq kotlin-ts-mode-indent-offset b7r6/indent-width)
 
-  ;; :hook (kotlin-ts-mode . (lambda () (setq format-all-formatters '(("Kotlin" (ktlint))))))
-  :mode "\\.kts?\\'")
+  :config
+  (add-to-list 'eglot-server-programs '(kotlin-ts-mode . ("kotlin-language-server")))
+
+  :hook (kotlin-mode . eglot-ensure))
+
+(use-package kotlin-ts-mode
+  :ensure t
+
+  ;; :mode ("\\.kt\\'" . kotlin-ts-mode)
+  ;; :mode ("\\.kts?\\'" . kotlin-ts-mode)
+
+  :init
+  (setq kotlin-tab-width b7r6/indent-width)
+  (setq kotlin-mode-indent-offset b7r6/indent-width)
+  (setq kotlin-ts-mode-indent-offset b7r6/indent-width)
+
+  :config
+  (add-to-list 'eglot-server-programs '(kotlin-ts-mode . ("kotlin-language-server")))
+
+  :hook (kotlin-mode . eglot-ensure))
+
+;; (use-package kotlin-ts-mode
+;;   :straight (:host gitlab :repo "bricka/emacs-kotlin-ts-mode")
+;;   :mode ("\\.kt\\'" . kotlin-ts-mode)
+;;   :mode ("\\.kts\\'" . kotlin-ts-mode)
+
+;;   :config
+;;   (setq kotlin-ts-mode-indent-offset b7r6/indent-width)
+
+;;   ;; :bind (("M-z" . hyper-modern/ktlint-format-buffer))
+;;   )
+
+;; (defun hyper-modern/ktlint-format-buffer ()
+;;     "Format the current buffer with ktlint, ignoring stderr."
+;;     (interactive)
+;;     ;; Only run this in kotlin-mode or kotlin-ts-mode
+;;     (when (member major-mode '(kotlin-mode kotlin-ts-mode))
+;;       (let ((current-point (point))) ; Store current point to restore later.
+;;         (let* ((exit-code) ; To capture the exit code of the process
+;;                (output-buffer (get-buffer-create "*ktlint-output*")) ; Temp buffer for ktlint output
+;;                (error-buffer (make-temp-file "ktlint-stderr")) ; Temp file for ktlint stderr
+;;                (process (make-process
+;;                          :name "ktlint"
+;;                          :buffer output-buffer
+;;                          :command '("ktlint" "--format" "--stdin")
+;;                          :standard-output output-buffer
+;;                          :standard-error error-buffer
+;;                          :sentinel
+;;                          (lambda (proc event)
+;;                            (when (memq (process-status proc) '(exit signal))
+;;                              (setq exit-code (process-exit-status proc))
+;;                              (unwind-protect
+;;                                  (if (= exit-code 0)
+;;                                      (progn
+;;                                        ;; Replace buffer contents with formatted output
+;;                                        (with-current-buffer (current-buffer)
+;;                                          (erase-buffer)
+;;                                          (insert-buffer-substring output-buffer)
+;;                                          (delete-region (point) (point-max)))
+;;                                        ;; Optionally, delete the error file
+;;                                        (delete-file error-buffer)
+;;                                        (message "Buffer formatted with ktlint"))
+;;                                    ;; If ktlint has exit code different than 0
+;;                                    (progn (message "Buffer could not be formatted with ktlint")
+;;                                           ;; Show the error contents
+;;                                           (with-temp-buffer
+;;                                             (insert-file-contents error-buffer)
+;;                                             (message "%s" (buffer-string)))))
+;;                                ;; Clean-up
+;;                                (kill-buffer output-buffer)
+;;                                (delete-file error-buffer)))))))
+;;           (process-send-string process (buffer-string))
+;;           (process-send-eof process)
+;;           (goto-char current-point))) ; Restore the original position
+;;       ))
+
+;; (use-package kotlin-ts-mode
+;;   :straight (:host gitlab :repo "bricka/emacs-kotlin-ts-mode")
+;;   :mode ("\\.kt\\'" . kotlin-ts-mode)
+;;   :mode ("\\.kts\\'" . kotlin-ts-mode)
+
+;;   :config
+;;   (setq kotlin-ts-mode-indent-offset b7r6/indent-width)
+
+;;   (defun my/ktlint-format-buffer ()
+;;     "Format the current buffer with ktlint, sending stderr to *Messages*."
+;;     (interactive)
+;;     (let ((current-point (point))  ; Remember the current cursor position.
+;;           (file-name (buffer-file-name))
+;;           (script-flag (if (string-match "\\.kts\\'" (or file-name "")) "--script" ""))
+;;           (error-buffer (get-buffer-create "*ktlint-errors*")))
+;;       ;; Format buffer with ktlint, optionally passing --script for .kts files.
+;;       (shell-command-on-region (point-min) (point-max)
+;;                                (format "ktlint --format %s --stdin" script-flag)
+;;                                (current-buffer) t
+;;                                error-buffer)
+;;       ;; Optional: if you want the error buffer to be displayed
+;;       ;; (when (get-buffer "*ktlint-errors*")
+;;       ;;   (display-buffer error-buffer))
+;;       (goto-char current-point)))  ; Restore cursor position after formatting.
+
+;;   :bind (("M-z" . my/ktlint-format-buffer)))
+
+;; (use-package kotlin-ts-mode
+;;   :straight (:host gitlab :repo "bricka/emacs-kotlin-ts-mode")
+;;   :mode ("\\.kt\\'" . kotlin-ts-mode)
+;;   :mode ("\\.kts\\'" . kotlin-ts-mode)
+
+;;   :config
+;;   (setq kotlin-ts-mode-indent-offset b7r6/indent-width)
+
+;;   (defun hyper-modern/ktlint-format-buffer ()
+;;     "Format the current buffer with ktlint."
+;;     (interactive)
+;;     (let ((current-point (point)))
+;;       (shell-command-on-region (point-min) (point-max) "ktlint --format --stdin" (current-buffer) t)
+;;       (goto-char current-point)))
+
+;;   :bind (("M-z" . hyper-modern/ktlint-format-buffer)))
+
+;; (use-package kotlin-ts-mode
+;;   :straight (:host gitlab :repo "bricka/emacs-kotlin-ts-mode")
+;;   :mode ("\\.kt\\'" . kotlin-ts-mode)
+;;   :mode ("\\.kts\\'" . kotlin-ts-mode)
+;;   :config
+;;   (setq kotlin-ts-mode-indent-offset b7r6/indent-width))
+
+;; (use-package kotlin-ts-mode
+;;   :straight (:host gitlab :repo "bricka/emacs-kotlin-ts-mode")
+;;   :config
+;;   (setq kotlin-ts-mode-indent-offset b7r6/indent-width)
+
+;;   ;; :hook (kotlin-ts-mode . (lambda () (setq format-all-formatters '(("Kotlin" (ktlint))))))
+;;   :mode "\\.kts?\\'")
 
 ;; (define-format-all-formatter ktlint
 ;;   (:executable "ktlint")
@@ -711,6 +865,9 @@
 ;; unsorted
 ;;
 
+(use-package gptel
+  :ensure t)
+
 (use-package llama-cpp
   :ensure t)
 
@@ -777,4 +934,4 @@
   :straight (current-window-only
              :type git
              :host github
-             :repo "FrostyX/current-window-only")  )
+             :repo "FrostyX/current-window-only"))

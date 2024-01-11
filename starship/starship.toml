@@ -1,18 +1,23 @@
-format = "[// $directory$git_branch$env_var//](fg:#374257) "
+format = "[// $directory$git_branch$conda$env_var//](fg:#374257)\n[// ](fg:#374257)"
 
 [directory]
-format="[($path)]($style) "
+format="[⬢ ($path)]($style) "
 style="#37A3FF"
 truncate_to_repo = true
 
 [git_branch]
-format="[($branch)]($style) "
+format="[($symbol$branch)]($style) "
 style="fg:#f49b4f"
 
+[conda]
+format="[($symbol$environment)]($style) "
+style="fg:#905DFF"
+
 [env_var]
-format="[($env_value)]($style) "
+format="[($symbol$env_value)]($style) "
 variable="__NIX_PS1__"
-style="#f78166"
+style="#9DE6FF"
+symbol="[❄️ ]($style)"
 
 [character]
 disabled=true
