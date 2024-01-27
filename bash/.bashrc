@@ -82,6 +82,9 @@ eval "$(mcfly init bash)"
 eval "$(zoxide init bash)"
 eval "$(thefuck --alias)"
 
+# TODO(b7r6): do this properly...
+export PATH="${PATH}:${HOME}/Library/Android/sdk/platform-tools:${HOME}/Library/Android/sdk/emulator"
+
 # TODO(agent): do the right thing on modern darwin `brew` bash completion, i think
 # this dates to a previous layout...
 # if [[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]]; then

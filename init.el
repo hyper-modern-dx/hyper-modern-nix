@@ -215,6 +215,22 @@
   :after emacs)
 
 ;;
+;; `reformatter`
+;;
+
+(use-package reformatter
+  :ensure t)
+
+;;
+;; `format-all`
+;;
+
+(use-package format-all
+  :straight t
+  :commands format-all-mode
+  :hook (prog-mode . format-all-mode))
+
+;;
 ;; key bindings and associated utilities
 ;;
 
@@ -384,23 +400,32 @@
   (vertico-count b7r6/completion-count))
 
 ;;
-;; `format-all`
+;; project/directory searching
 ;;
 
-(use-package format-all
-  :straight t
-  :commands format-all-mode
-  :hook (prog-mode . format-all-mode)
-
-  :init
-
+(use-package rg
+  :ensure t
   :config
-  (define-format-all-formatter hyper-modern-ktlint
-    (:executable "ktlint")
-    (:install (macos "brew install ktlint"))
-    (:languages "Kotlin")
-    (:features)
-    (:format (format-all--buffer-easy executable "--log-level=none" "--fix" "--format" "--stdin"))))
+  ;; Set default directory to search in
+  (setq rg-default-directory (expand-file-name "."))
+
+  ;; Use ripgrep as the default search tool in Projectile
+  (setq projectile-use-rg t)
+
+  ;; Group search results by file
+  (setq rg-group-result t)
+
+  ;; Context lines: 2 lines before and after the match
+  (setq rg-context-line-count 2)
+
+  ;; Show search results in a new window
+  (setq rg-show-columns t)
+
+  ;; Keybindings
+  :bind (("C-c C-r" . rg)
+         ("C-c s p" . rg-project)
+         ("C-c s d" . rg-dwim)
+         ("C-c s l" . rg-list-searches)))
 
 ;;
 ;; `company`
@@ -638,7 +663,13 @@
 ;; `kotlin` support
 ;;
 
-(use-package kotlin-mode
+(use-package hyper-modern-ktlint-format
+  :straight (:type built-in)
+  :load-path "lib"
+  :after emacs)
+
+(use-package kotlin-ts-mode
+  :after hyper-modern-ktlint-format
   :ensure t
 
   :mode ("\\.kt\\'" . kotlin-ts-mode)
@@ -653,143 +684,9 @@
   :config
   (add-to-list 'eglot-server-programs '(kotlin-ts-mode . ("kotlin-language-server")))
 
-  :hook (kotlin-mode . eglot-ensure))
-
-(use-package kotlin-ts-mode
-  :ensure t
-
-  ;; :mode ("\\.kt\\'" . kotlin-ts-mode)
-  ;; :mode ("\\.kts?\\'" . kotlin-ts-mode)
-
-  :init
-  (setq kotlin-tab-width b7r6/indent-width)
-  (setq kotlin-mode-indent-offset b7r6/indent-width)
-  (setq kotlin-ts-mode-indent-offset b7r6/indent-width)
-
-  :config
-  (add-to-list 'eglot-server-programs '(kotlin-ts-mode . ("kotlin-language-server")))
+  :bind (:map kotlin-ts-mode-map ("M-z" . hyper-modern/ktlint-format-buffer))
 
   :hook (kotlin-mode . eglot-ensure))
-
-;; (use-package kotlin-ts-mode
-;;   :straight (:host gitlab :repo "bricka/emacs-kotlin-ts-mode")
-;;   :mode ("\\.kt\\'" . kotlin-ts-mode)
-;;   :mode ("\\.kts\\'" . kotlin-ts-mode)
-
-;;   :config
-;;   (setq kotlin-ts-mode-indent-offset b7r6/indent-width)
-
-;;   ;; :bind (("M-z" . hyper-modern/ktlint-format-buffer))
-;;   )
-
-;; (defun hyper-modern/ktlint-format-buffer ()
-;;     "Format the current buffer with ktlint, ignoring stderr."
-;;     (interactive)
-;;     ;; Only run this in kotlin-mode or kotlin-ts-mode
-;;     (when (member major-mode '(kotlin-mode kotlin-ts-mode))
-;;       (let ((current-point (point))) ; Store current point to restore later.
-;;         (let* ((exit-code) ; To capture the exit code of the process
-;;                (output-buffer (get-buffer-create "*ktlint-output*")) ; Temp buffer for ktlint output
-;;                (error-buffer (make-temp-file "ktlint-stderr")) ; Temp file for ktlint stderr
-;;                (process (make-process
-;;                          :name "ktlint"
-;;                          :buffer output-buffer
-;;                          :command '("ktlint" "--format" "--stdin")
-;;                          :standard-output output-buffer
-;;                          :standard-error error-buffer
-;;                          :sentinel
-;;                          (lambda (proc event)
-;;                            (when (memq (process-status proc) '(exit signal))
-;;                              (setq exit-code (process-exit-status proc))
-;;                              (unwind-protect
-;;                                  (if (= exit-code 0)
-;;                                      (progn
-;;                                        ;; Replace buffer contents with formatted output
-;;                                        (with-current-buffer (current-buffer)
-;;                                          (erase-buffer)
-;;                                          (insert-buffer-substring output-buffer)
-;;                                          (delete-region (point) (point-max)))
-;;                                        ;; Optionally, delete the error file
-;;                                        (delete-file error-buffer)
-;;                                        (message "Buffer formatted with ktlint"))
-;;                                    ;; If ktlint has exit code different than 0
-;;                                    (progn (message "Buffer could not be formatted with ktlint")
-;;                                           ;; Show the error contents
-;;                                           (with-temp-buffer
-;;                                             (insert-file-contents error-buffer)
-;;                                             (message "%s" (buffer-string)))))
-;;                                ;; Clean-up
-;;                                (kill-buffer output-buffer)
-;;                                (delete-file error-buffer)))))))
-;;           (process-send-string process (buffer-string))
-;;           (process-send-eof process)
-;;           (goto-char current-point))) ; Restore the original position
-;;       ))
-
-;; (use-package kotlin-ts-mode
-;;   :straight (:host gitlab :repo "bricka/emacs-kotlin-ts-mode")
-;;   :mode ("\\.kt\\'" . kotlin-ts-mode)
-;;   :mode ("\\.kts\\'" . kotlin-ts-mode)
-
-;;   :config
-;;   (setq kotlin-ts-mode-indent-offset b7r6/indent-width)
-
-;;   (defun my/ktlint-format-buffer ()
-;;     "Format the current buffer with ktlint, sending stderr to *Messages*."
-;;     (interactive)
-;;     (let ((current-point (point))  ; Remember the current cursor position.
-;;           (file-name (buffer-file-name))
-;;           (script-flag (if (string-match "\\.kts\\'" (or file-name "")) "--script" ""))
-;;           (error-buffer (get-buffer-create "*ktlint-errors*")))
-;;       ;; Format buffer with ktlint, optionally passing --script for .kts files.
-;;       (shell-command-on-region (point-min) (point-max)
-;;                                (format "ktlint --format %s --stdin" script-flag)
-;;                                (current-buffer) t
-;;                                error-buffer)
-;;       ;; Optional: if you want the error buffer to be displayed
-;;       ;; (when (get-buffer "*ktlint-errors*")
-;;       ;;   (display-buffer error-buffer))
-;;       (goto-char current-point)))  ; Restore cursor position after formatting.
-
-;;   :bind (("M-z" . my/ktlint-format-buffer)))
-
-;; (use-package kotlin-ts-mode
-;;   :straight (:host gitlab :repo "bricka/emacs-kotlin-ts-mode")
-;;   :mode ("\\.kt\\'" . kotlin-ts-mode)
-;;   :mode ("\\.kts\\'" . kotlin-ts-mode)
-
-;;   :config
-;;   (setq kotlin-ts-mode-indent-offset b7r6/indent-width)
-
-;;   (defun hyper-modern/ktlint-format-buffer ()
-;;     "Format the current buffer with ktlint."
-;;     (interactive)
-;;     (let ((current-point (point)))
-;;       (shell-command-on-region (point-min) (point-max) "ktlint --format --stdin" (current-buffer) t)
-;;       (goto-char current-point)))
-
-;;   :bind (("M-z" . hyper-modern/ktlint-format-buffer)))
-
-;; (use-package kotlin-ts-mode
-;;   :straight (:host gitlab :repo "bricka/emacs-kotlin-ts-mode")
-;;   :mode ("\\.kt\\'" . kotlin-ts-mode)
-;;   :mode ("\\.kts\\'" . kotlin-ts-mode)
-;;   :config
-;;   (setq kotlin-ts-mode-indent-offset b7r6/indent-width))
-
-;; (use-package kotlin-ts-mode
-;;   :straight (:host gitlab :repo "bricka/emacs-kotlin-ts-mode")
-;;   :config
-;;   (setq kotlin-ts-mode-indent-offset b7r6/indent-width)
-
-;;   ;; :hook (kotlin-ts-mode . (lambda () (setq format-all-formatters '(("Kotlin" (ktlint))))))
-;;   :mode "\\.kts?\\'")
-
-;; (define-format-all-formatter ktlint
-;;   (:executable "ktlint")
-;;   (:install (macos "brew install ktlint"))
-;;   (:modes kotlin-mode)
-;;   (:format (format-all--buffer-easy executable "--format" "-l" "error" "--stdin")))
 
 ;;
 ;; `gradle`
@@ -893,30 +790,6 @@
              :repo "FrostyX/current-window-only")
   :config
   (current-window-only-mode))
-
-(use-package rg
-  :ensure t
-  :config
-  ;; Set default directory to search in
-  (setq rg-default-directory (expand-file-name "~/src"))
-
-  ;; Use ripgrep as the default search tool in Projectile
-  (setq projectile-use-rg t)
-
-  ;; Group search results by file
-  (setq rg-group-result t)
-
-  ;; Context lines: 2 lines before and after the match
-  (setq rg-context-line-count 2)
-
-  ;; Show search results in a new window
-  (setq rg-show-columns t)
-
-  ;; Keybindings
-  :bind (("C-c C-r" . rg)
-         ("C-c s p" . rg-project)
-         ("C-c s d" . rg-dwim)
-         ("C-c s l" . rg-list-searches)))
 
 ;; TODO(b7r6): finish adding v0.1.0 tags...
 (use-package svg-tag-mode
