@@ -146,10 +146,6 @@
   (set-display-table-slot
    standard-display-table 'vertical-border ?│)
 
-  ;; no italics ever
-  (set-face-italic 'font-lock-comment-face nil)
-  (set-face-italic 'font-lock-comment-delimiter-face nil)
-
   ;; global built-in modes (graphical)
   (when (display-graphic-p)
     (setq frame-resize-pixelwise t)
@@ -317,6 +313,7 @@
 
    "C-c q"   'join-line
    "C-c r"   'revert-buffer
+   "C-c d"   'dashboard-open
    "C-j"     'newline-and-indent
 
    ;; frame mainpulation
@@ -353,7 +350,13 @@
   :straight (:type built-in)
 
   :init
-  (load-theme 'ono-sendai-hyper-modern :no-confirm))
+  (load-theme 'ono-sendai-hyper-modern :no-confirm)
+
+  :config
+  (mapc
+   (lambda (face)
+     (set-face-attribute face nil :weight b7r6/font-weight :family b7r6/font-family))
+   (face-list)))
 
 ;;
 ;; completion
@@ -762,26 +765,58 @@
 ;; unsorted
 ;;
 
+;;
+;; `gptel`
+;;
+
 (use-package gptel
   :ensure t)
+
+;;
+;; `llama-cpp`
+;;
 
 (use-package llama-cpp
   :ensure t)
 
+;;
+;; `magit`
+;;
+
 (use-package magit
   :ensure t)
+
+;;
+;; `rainbow-mode`
+;;
 
 (use-package rainbow-mode
   :ensure t)
 
+;;
+;; `consult`
+;;
+
 (use-package consult
   :ensure t)
+
+;;
+;; `autothemer`
+;;
 
 (use-package autothemer
   :ensure t)
 
+;;
+;; `fontify-face`
+;;
+
 (use-package fontify-face
   :ensure t)
+
+;;
+;; `current-window-only`
+;;
 
 (use-package current-window-only
   :straight (current-window-only

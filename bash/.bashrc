@@ -60,7 +60,7 @@ alias em="open -a /Applications/Emacs.app ${1}"
 # `vivid` / `bat` / `fzf`
 #
 
-export LS_COLORS=$(vivid generate ayu)
+# export LS_COLORS=$(vivid generate ayu)
 
 export BAT_THEME="Nord"
 
