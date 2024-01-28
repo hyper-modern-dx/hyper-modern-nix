@@ -546,21 +546,14 @@
   :hook (after-init . dashboard-open))
 
 ;;
-;; `treemacs.el`
+;; `dirvish`
 ;;
 
-(use-package treemacs-all-the-icons
+(use-package dirvish
   :ensure t)
 
-(use-package treemacs
-  :after all-the-icons
-  :ensure t
-
-  :config
-  (treemacs-load-theme "all-the-icons"))
-
 ;;
-;; paredit
+;; `paredit`
 ;;
 
 (use-package paredit
@@ -604,14 +597,32 @@
   :hook (prog-mode . eldoc-box-hover-at-point-mode))
 
 ;;
-;; markdown
+;; `markdown`
 ;;
 
 (use-package markdown-mode
   :ensure t)
 
 ;;
-;; protocol buffers
+;; `markdown`
+;;
+
+(use-package markdown-mode
+  :ensure t)
+
+;;
+;; compilation
+;;
+
+(use-package compile
+  :ensure t
+
+  :config
+  (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
+  )
+
+;;
+;; `protocol buffers` support
 ;;
 
 (use-package protobuf-mode
