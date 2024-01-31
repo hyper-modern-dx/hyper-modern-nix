@@ -52,6 +52,11 @@
    (garbage-collect)
    (setq gc-cons-threshold hyper-modern/gc-cons-threshold)))
 
+(defvar b7r6/ssh-key-name "id_ed25519_b7r6")
+
+(shell-command
+ (format "ssh-add --apple-use-keychain ~/.ssh/%s" b7r6/ssh-key-name))
+
 ;;
 ;; `straight.el` bootstrap prelude
 ;;
@@ -81,7 +86,6 @@
   :ensure nil
 
   :preface
-  (defvar b7r6/ssh-key-name "id_ed25519_b7r6")
   (defvar b7r6/indent-width 2)
   (defvar b7r6/max-columns 100)
 
@@ -94,9 +98,6 @@
   (defvar b7r6/completion-count 16)
 
   :init
-  (shell-command
-   (format "ssh-add --apple-use-keychain ~/.ssh/%s" b7r6/ssh-key-name))
-
   :config
   (setq user-full-name "b7r6")
   (setq-default default-directory "~/src")
@@ -467,14 +468,14 @@
 ;; `doom-modeline.el`
 ;;
 
-(use-package shrink-path
-  :straight (shrink-path
-             :type git
-             :host github
-             :repo "bennya/shrink-path.el"))
+;; (use-package shrink-path
+;;   :straight (shrink-path
+;;              :type git
+;;              :host github
+;;              :repo "bennya/shrink-path.el"))
 
 (use-package doom-modeline
-  :after all-the-icons shrink-path
+  :after all-the-icons ;; shrink-path
   :straight (doom-modeline
              :type git
              :host github
@@ -707,7 +708,12 @@
 ;;
 
 (use-package gradle-mode
-  :ensure t)
+  :ensure t
+  :config
+  (push 'gradle compilation-error-regexp-alist)
+  (push '(gradle "\(file://\)?\([A-Za-z0-9/-]+.[a-z]+\):\([0-9]+\):\([0-9]+\)" 2 3 4)
+        compilation-error-regexp-alist-alist)
+  )
 
 ;;
 ;; `swift` support
