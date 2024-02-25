@@ -26,7 +26,7 @@ add_to_path() {
     fi
 }
 
-declare -ra USER_PATHS=(
+declare -a USER_PATHS=(
     "${HOME}/.local/bin"
     "${HOME}/.bin"
     "${HOME}/bin"
@@ -95,6 +95,8 @@ export PATH="${PATH}:${HOME}/Library/Android/sdk/platform-tools:${HOME}/Library/
 # if [[ -r "${HOME}/bin/bazel-complete.bash" ]]; then
 #     source "${HOME}/bin/bazel-complete.bash"
 # fi
+
+export ANDROID_HOME=/Users/b7r6/Library/Android/Sdk/sdk
 
 #
 # `typescript`

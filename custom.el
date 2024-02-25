@@ -94,7 +94,11 @@
      ("_Nginx" nginxfmt)
      ("_Snakemake" snakefmt)))
  '(format-all-show-errors 'never)
- '(fzf/window-height 40))
+ '(fzf/window-height 40)
+ '(marginalia-align 'right)
+ '(marginalia-align-offset 0)
+ '(marginalia-mode t)
+ '(vertico-count 15))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

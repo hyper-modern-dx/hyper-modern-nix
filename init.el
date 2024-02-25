@@ -90,7 +90,7 @@
   (defvar b7r6/max-columns 100)
 
   (defvar b7r6/font-family "Berkeley Mono")
-  (defvar b7r6/font-height 155)
+  (defvar b7r6/font-height 175)
   (defvar b7r6/font-weight 'semibold)
 
   (defvar b7r6/posframe-width 128)
@@ -98,6 +98,7 @@
   (defvar b7r6/completion-count 16)
 
   :init
+
   :config
   (setq user-full-name "b7r6")
   (setq-default default-directory "~/src")
@@ -192,7 +193,11 @@
   (defalias 'yes-or-no-p 'y-or-n-p)
 
   (setq-default visible-bell nil)
-  (setq-default ring-bell-function #'ignore))
+  (setq-default ring-bell-function #'ignore)
+
+  ;; TODO(b7r6): there's a bigger story around `jvm` and `android` configuration here...
+  (setenv "JAVA_HOME" "/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home")
+  )
 
 ;;
 ;; `vterm.el`
@@ -334,7 +339,8 @@
 
    ;; `hyper-modern` overrides
 
-   "C-M-r"   'hyper-modern/rotate-windows
+   "C-M-r"   'consult-ripgrep
+   "M-R"     'hyper-modern/rotate-windows
    "C-c f"   'hyper-modern/show-current-file
    "C-x 2"   'hyper-modern/vsplit
    "C-x 3"   'hyper-modern/hsplit
@@ -363,20 +369,30 @@
 ;; completion
 ;;
 
+(use-package consult
+  :ensure t)
+
+(use-package all-the-icons-completion
+  :ensure t)
+
 (use-package fzf
   :ensure t)
 
-(use-package amx
-  :ensure t
-  :config
-  (amx-mode))
+;; (use-package amx
+;;   :ensure t
+;;   :config
+;;   (amx-mode))
 
 (use-package vertico
   :ensure t
+
+  :custom
+  (vertico-cycle t)
+
   :init
   (vertico-mode)
-  :custom
-  (vertico-cycle t))
+  (vertico-reverse-mode)
+  )
 
 (use-package orderless
   :ensure t
@@ -388,20 +404,34 @@
 (use-package posframe
   :ensure t)
 
-(use-package vertico-posframe
-  :after vertico posframe
+(use-package marginalia
   :ensure t
 
-  :config
-  (vertico-posframe-mode +1)
+  ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
+  ;; available in the *Completions* buffer, add it to the
+  ;; `completion-list-mode-map'.
+  :bind (:map minibuffer-local-map ("M-A" . marginalia-cycle))
 
-  :custom
-  (vertico-posframe-parameters '((left-fringe . 8) (right-fringe . 8)))
-  (vertico-posframe-width b7r6/posframe-width)
-  (vertico-posframe-height b7r6/posframe-height)
+  ;; Marginalia must be activated in the :init section of use-package such that
+  ;; the mode gets enabled right away. Note that this forces loading the
+  ;; package.
+  :init
+  (marginalia-mode))
 
-  (vertico-posframe-poshandler 'posframe-poshandler-frame-center)
-  (vertico-count b7r6/completion-count))
+;; (use-package vertico-posframe
+;;   :after vertico posframe
+;;   :ensure t
+
+;;   :config
+;;   (vertico-posframe-mode +1)
+
+;;   :custom
+;;   (vertico-posframe-parameters '((left-fringe . 8) (right-fringe . 8)))
+;;   (vertico-posframe-width b7r6/posframe-width)
+;;   (vertico-posframe-height b7r6/posframe-height)
+
+;;   (vertico-posframe-poshandler 'posframe-poshandler-frame-center)
+;;   (vertico-count b7r6/completion-count))
 
 ;;
 ;; project/directory searching
@@ -808,13 +838,6 @@
 ;;
 
 (use-package rainbow-mode
-  :ensure t)
-
-;;
-;; `consult`
-;;
-
-(use-package consult
   :ensure t)
 
 ;;
