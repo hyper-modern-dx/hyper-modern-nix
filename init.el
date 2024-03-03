@@ -855,6 +855,13 @@
   :ensure t)
 
 ;;
+;; `csv-mode`
+;;
+
+(use-package csv-mode
+  :ensure t)
+
+;;
 ;; `current-window-only`
 ;;
 
