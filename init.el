@@ -570,7 +570,7 @@
   (setq dashboard-set-file-icons t)
   (setq dashboard-display-icons-p t)
 
-  (dashboard-startup-banner "~/.emacs.d/hyper-modern-logo.svg")
+  (dashboard-startup-banner "~/.emacs.d/hyper-modern.txt")
 
   (dashboard-setup-startup-hook)
 
@@ -623,9 +623,9 @@
   :hook (prog-mode . eglot-ensure)
   :hook (prog-mode . eldoc-mode))
 
-(use-package eldoc-box
-  :ensure t
-  :hook (prog-mode . eldoc-box-hover-at-point-mode))
+;; (use-package eldoc-box
+;;   :ensure t
+;;   :hook (prog-mode . eldoc-box-hover-at-point-mode))
 
 ;;
 ;; `markdown`

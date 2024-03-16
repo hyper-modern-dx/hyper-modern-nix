@@ -98,7 +98,8 @@
  '(marginalia-align 'right)
  '(marginalia-align-offset 0)
  '(marginalia-mode t)
- '(vertico-count 15))
+ '(vertico-count 15)
+ '(warning-suppress-types '((use-package))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

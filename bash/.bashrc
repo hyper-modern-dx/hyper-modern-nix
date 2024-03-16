@@ -30,6 +30,7 @@ declare -a USER_PATHS=(
     "${HOME}/.local/bin"
     "${HOME}/.bin"
     "${HOME}/bin"
+
     # TODO(b7r6): get this right with `uname` and shit..
     "/opt/homebrew/opt/llvm/bin"
     "/opt/homebrew/bin"
@@ -96,7 +97,7 @@ export PATH="${PATH}:${HOME}/Library/Android/sdk/platform-tools:${HOME}/Library/
 #     source "${HOME}/bin/bazel-complete.bash"
 # fi
 
-export ANDROID_HOME=/Users/b7r6/Library/Android/Sdk/sdk
+export ANDROID_HOME="${HOME}/Library/Android/sdk"
 
 #
 # `typescript`
@@ -150,3 +151,4 @@ complete -o bashdefault -o default -F _gt_yargs_completions gt
 #
 
 eval "$(starship init bash)"
+. "$HOME/.cargo/env"

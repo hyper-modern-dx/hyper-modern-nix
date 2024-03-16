@@ -17,7 +17,12 @@ style="fg:#905DFF"
 format="[($symbol$env_value)]($style) "
 variable="__NIX_PS1__"
 style="#9DE6FF"
-symbol="[❄️ ]($style)"
+symbol="[❄ ]($style)"
+
+[env_var.FLOX_PROMPT_ENVIRONMENTS]
+format="[($symbol$env_value)]($style) "
+style="#905DFF"
+symbol="[❄ ]($style)"
 
 [character]
 disabled=true
