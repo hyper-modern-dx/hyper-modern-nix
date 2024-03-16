@@ -817,7 +817,26 @@
 ;;
 
 (use-package gptel
-  :ensure t)
+  :ensure t
+
+  :config
+  ;; anthropic
+  (gptel-make-anthropic "opus"
+    :stream t
+    ;; :key "..."
+    )
+
+  ;; local `llama.cpp`
+  (gptel-make-openai "llama-cpp"
+    :stream t
+    :protocol "http"
+    :host "127.0.0.1:8080"
+    :models '("dolphin-8x7-v0.1-gguf-q_4_km"))
+
+  ;; "open" ai
+  ;; (setq gptel-api-key "...")
+  )
+
 
 ;;
 ;; `llama-cpp`
