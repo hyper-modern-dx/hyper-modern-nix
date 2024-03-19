@@ -54,7 +54,7 @@
 
 (defvar b7r6/ssh-key-name "id_ed25519_b7r6")
 
-(shell-command
+(call-process-shell-command
  (format "ssh-add --apple-use-keychain ~/.ssh/%s" b7r6/ssh-key-name))
 
 ;;
@@ -89,8 +89,8 @@
   (defvar b7r6/indent-width 2)
   (defvar b7r6/max-columns 100)
 
-  (defvar b7r6/font-family "Berkeley Mono")
-  (defvar b7r6/font-height 175)
+  (defvar b7r6/font-family "BerkeleyMono Nerd Font Mono")
+  (defvar b7r6/font-height 150)
   (defvar b7r6/font-weight 'semibold)
 
   (defvar b7r6/posframe-width 128)
@@ -485,7 +485,7 @@
   ;; TODO(b7r6): integrate with global font/face handling...
   (add-to-list
    'company-box-frame-parameters
-   '(font . "Berkeley Mono-16:weight=bold")))
+   '(font . "BerkeleyMono Nerd Font Mono-16:weight=bold")))
 
 ;;
 ;; `all-the-icons.el`
@@ -519,7 +519,7 @@
   (setq doom-modeline-major-mode-icon t)
   (setq doom-modeline-minor-modes nil)
   (setq doom-modeline-project-detection 'auto)
-  (setq doom-modeline-unicode-fallback nil)
+  (setq doom-modeline-unicode-fallback t)
 
   :hook (after-init . doom-modeline-mode))
 
@@ -546,10 +546,11 @@
 
   (dashboard-center-content t)
   (dashboard-set-navigator t)
+
   (dashboard-navigator-buttons
    '(((" " "RELOAD // INIT " "" (lambda (&rest _) (load-file user-init-file))))))
 
-  (dashboard-icon-type 'all-the-icons)
+  ;; (dashboard-icon-type 'all-the-icons)
 
   ;; TODO: enable again when they work
   ;;       https://github.com/emacs-dashboard/emacs-dashboard/issues/459
@@ -570,7 +571,7 @@
   (setq dashboard-set-file-icons t)
   (setq dashboard-display-icons-p t)
 
-  (dashboard-startup-banner "~/.emacs.d/hyper-modern.txt")
+  (dashboard-startup-banner "~/hyper-modern/logos/hyper-modern-ascii-logo.txt")
 
   (dashboard-setup-startup-hook)
 
@@ -809,6 +810,13 @@
   (tsx-ts-mode . (lambda () (setq format-all-formatters '(("TSX" (prettier)))))))
 
 ;;
+;; `lua` support
+;;
+
+(use-package lua-mode
+  :ensure t)
+
+;;
 ;; unsorted
 ;;
 
@@ -904,8 +912,8 @@
 
   (svg-tag-mode))
 
-(use-package current-window-only
-  :straight (current-window-only
-             :type git
-             :host github
-             :repo "FrostyX/current-window-only"))
+;; (use-package current-window-only
+;;   :straight (current-window-only
+;;              :type git
+;;              :host github
+;;              :repo "FrostyX/current-window-only"))

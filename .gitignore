@@ -16,3 +16,7 @@ auto-save-list
 projectile-bookmarks.eld
 request
 /llama.log
+/emacs/eln-cache/
+/emacs/straight/build-cache.el
+/emacs/straight/build/
+/emacs/straight/repos/
