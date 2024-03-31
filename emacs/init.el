@@ -1,7 +1,13 @@
 ;;; init.el --- -*- lexical-binding: t -*-
 
 ;;
-;; `hyper-modern`
+;;
+;;    ▬▬▬  ▬▬▬ ▬▬▬ ▬▬▬ ▬▬▬▬▬▬▬  ▬▬▬▬▬▬▬▬ ▬▬▬▬▬▬▬           ▬▬▬     ▬▬▬      ▬▬▬▬▬▬▬▬▬▬  ▬▬▬▬▬▬▬  ▬▬▬▬▬▬▬  ▬▬▬▬▬▬▬▬ ▬▬▬▬▬▬▬  ▬▬▬▬ ▬▬▬
+;;    ▬▬▬  ▬▬▬ ▬▬▬ ▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬      ▬▬▬  ▬▬▬         ▬▬▬     ▬▬▬       ▬▬▬ ▬▬▬ ▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬      ▬▬▬  ▬▬▬ ▬▬▬▬▬▬▬▬
+;;    ▬▬▬▬▬▬▬▬  ▬▬▬▬▬  ▬▬▬▬▬▬▬  ▬▬▬▬▬▬   ▬▬▬▬▬▬▬         ▬▬▬     ▬▬▬        ▬▬▬ ▬▬▬ ▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬▬▬▬   ▬▬▬▬▬▬▬  ▬▬▬▬▬▬▬▬
+;;    ▬▬▬  ▬▬▬   ▬▬▬   ▬▬▬      ▬▬▬      ▬▬▬ ▬▬▬        ▬▬▬     ▬▬▬         ▬▬▬     ▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬      ▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬▬
+;;    ▬▬▬  ▬▬▬   ▬▬▬   ▬▬▬      ▬▬▬▬▬▬▬▬ ▬▬▬  ▬▬▬      ▬▬▬     ▬▬▬          ▬▬▬     ▬▬▬  ▬▬▬▬▬▬  ▬▬▬▬▬▬▬  ▬▬▬▬▬▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬  ▬▬▬
+;;
 ;;
 
 ;;
@@ -86,6 +92,7 @@
   :ensure nil
 
   :preface
+  ;; TODO(b7r6): support multiple profiles/configs based on `$USER`...
   (defvar b7r6/indent-width 2)
   (defvar b7r6/max-columns 100)
 
@@ -100,14 +107,15 @@
   :init
 
   :config
+  ;; TODO(b7r6): support multiple profiles/configs based on `$USER`...
   (setq user-full-name "b7r6")
   (setq-default default-directory "~/src")
 
   ;; indent width
-  (setq-default indent-tabs-mode nil)               ; Use spaces instead of tabs
-  (setq-default tab-width        b7r6/indent-width) ; Set width for automatic tabs
-  (setq-default c-basic-offset   b7r6/indent-width) ; Set offset for languages using C style indentation
-  (setq-default standard-indent  b7r6/indent-width) ; Set default number of spaces for indentation
+  (setq-default indent-tabs-mode nil)               ; use spaces instead of tabs
+  (setq-default tab-width        b7r6/indent-width) ; set width for automatic tabs
+  (setq-default c-basic-offset   b7r6/indent-width) ; set offset for languages using C style indentation
+  (setq-default standard-indent  b7r6/indent-width) ; set default number of spaces for indentation
 
   ;; modern global defautls
   (setq auto-save-default               nil)
@@ -130,6 +138,10 @@
   (setq transient-mark-mode               t)
   (setq cursor-in-non-selected-windows  nil)
   (setq backup-by-copying                 t)
+
+  ;; TODO(b7r6): unfuck the swap files...
+
+  (put 'upcase-region 'disabled nil)
 
   ;; global built-in modes
   (blink-cursor-mode       +1)
@@ -196,7 +208,7 @@
   (setq-default ring-bell-function #'ignore)
 
   ;; TODO(b7r6): there's a bigger story around `jvm` and `android` configuration here...
-  (setenv "JAVA_HOME" "/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home")
+  ;; (setenv "JAVA_HOME" "/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home")
   )
 
 ;;
@@ -239,6 +251,7 @@
 (use-package which-key
   :custom
   (which-key-idle-delay 2)
+
   :config
   (which-key-mode))
 

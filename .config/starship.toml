@@ -1,7 +1,7 @@
-format = "[// $directory$git_branch$conda$env_var//](fg:#374257)\n[// ](fg:#374257)"
+format = "[// $directory$git_branch$conda$python$env_var//](fg:#374257)\n[// ](fg:#374257)"
 
 [directory]
-format="[⬢ ($path)]($style) "
+format="[  ($path)]($style) "
 style="#37A3FF"
 truncate_to_repo = true
 
@@ -23,6 +23,11 @@ symbol="[❄ ]($style)"
 format="[($symbol$env_value)]($style) "
 style="#905DFF"
 symbol="[❄ ]($style)"
+
+[python]
+format="[$symbol ($virtualenv)]($style) "
+symbol = "[ ]($style)"
+pyenv_version_name = false
 
 [character]
 disabled=true
