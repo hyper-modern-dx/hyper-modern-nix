@@ -358,6 +358,11 @@
    "C-x 2"   'hyper-modern/vsplit
    "C-x 3"   'hyper-modern/hsplit
    "C-x k"   'hyper-modern/kill-current-buffer
+
+   ;; TODO(b7r6): move to specific mode once we're happy...
+   ;; `gptel` bindings
+   "C-c a" 'gptel
+   "C-c s" 'gptel-menu
    ))
 
 ;;
