@@ -30,6 +30,8 @@ export TERM="xterm-256color"
 export VIVID_THEME="nord"
 export BAT_THEME="Nord"
 
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
 #
 # `HYPER // MODERN` path handling
 #
@@ -119,3 +121,5 @@ eval "$(mcfly init bash)"
 eval "$(zoxide init bash)"
 eval "$(starship init bash)"
 
+
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"

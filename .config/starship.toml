@@ -1,4 +1,4 @@
-format = "[// $directory$git_branch$conda$python$env_var//](fg:#374257)\n[// ](fg:#374257)"
+format = "[// $directory$git_branch$conda$env_var//](fg:#374257)\n[// ](fg:#374257)"
 
 [directory]
 format="[  ($path)]($style) "

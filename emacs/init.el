@@ -215,9 +215,9 @@
 ;; `vterm.el`
 ;;
 
-(use-package vterm
-  :ensure t
-  :hook (vterm-mode . (lambda () (setq-local global-hl-line-mode nil))))
+;; (use-package vterm
+;;   :ensure t
+;;   :hook (vterm-mode . (lambda () (setq-local global-hl-line-mode nil))))
 
 ;;
 ;; `smart-split`
@@ -516,14 +516,18 @@
 ;; `doom-modeline.el`
 ;;
 
+(use-package shrink-path
+  :straight (shrink-path
+             :type git
+             :host github
+             :repo "zbelial/shrink-path.el"))
+
 ;; (use-package shrink-path
-;;   :straight (shrink-path
-;;              :type git
-;;              :host github
-;;              :repo "bennya/shrink-path.el"))
+;;   :ensure t
+;;   :demand t)
 
 (use-package doom-modeline
-  :after all-the-icons ;; shrink-path
+  :after all-the-icons shrink-path
   :straight (doom-modeline
              :type git
              :host github
@@ -589,7 +593,7 @@
   (setq dashboard-set-file-icons t)
   (setq dashboard-display-icons-p t)
 
-  (dashboard-startup-banner "~/hyper-modern/logos/hyper-modern-ascii-logo.txt")
+  (dashboard-startup-banner "~/src/hyper-modern/logos/hyper-modern-ascii-logo.txt")
 
   (dashboard-setup-startup-hook)
 
@@ -623,10 +627,12 @@
 (use-package treesit-auto
   :custom
   (treesit-auto-install t)
+  (delete 'c++ treesit-auto-langs)
 
   :config
-  (treesit-auto-add-to-auto-mode-alist 'all)
-  (global-treesit-auto-mode))
+  ;; (treesit-auto-add-to-auto-mode-alist 'all)
+  ;; (global-treesit-auto-mode)
+  )
 
 ;;
 ;; `eglot` / `eldoc`
@@ -687,7 +693,10 @@
 
 (use-package nix-mode
   :after nixpkgs-fmt
-  :ensure t)
+  :ensure t
+  ;; TODO(b7r6): unfuck this...
+  ;; :bind (:map nix-mode-map ("M-z" . nix-nixfmt-bin))
+  )
 
 ;;
 ;; `bazel` support
@@ -707,12 +716,66 @@
   )
 
 ;;
+;; `c++` support
+;;
+
+(use-package clang-format
+  :ensure t
+  )
+
+;; (use-package cc-mode
+;;   :ensure t
+;;   :mode ("\\.cpp\\'" "\\.h\\'")
+
+;;   ;; (add-hook 'cc-mode-hook (lambda () (c++-mode)))
+
+;;   ;; :config
+;;   ;; :bind (:map c++-mode-map ("M-z" . clang-format-buffer))
+;;   )
+
+;; (setq c++-ts-mode c++-mode)
+;; (add-hook 'c++-mode-hook '(lambda () (message "c++ in the house")))
+
+
+(use-package cmake-mode
+  :ensure t)
+
+;;
+;; `python` support
+;;
+
+(use-package blacken
+  :ensure t)
+
+(use-package py-isort
+  :ensure t)
+
+(defun format-python-buffer ()
+  (blacken-buffer)
+  ;; TODO(b7r6): evaluate whether or not we want this...
+  ;; (py-isort-buffer)
+  )
+
+(use-package python
+  :mode ("\\.py\\'" . python-ts-mode)
+
+  ;; TODO(b7r6): figure this out...
+  ;; :init
+  ;; (setq python-indent-offset b7r6/indent-width)
+
+  :config
+  :bind (:map python-ts-mode-map
+              ("M-z" . blacken-buffer)))
+
+
+;;
 ;; `java` support
 ;;
 
 (use-package java-ts-mode
   :after eglot
   :ensure t
+
   :config
   (setq java-ts-mode-indent-offset b7r6/indent-width)
 
@@ -732,25 +795,25 @@
   :load-path "lib"
   :after emacs)
 
-(use-package kotlin-ts-mode
-  :after hyper-modern-ktlint-format
-  :ensure t
+;; (use-package kotlin-ts-mode
+;;   :after hyper-modern-ktlint-format
+;;   :ensure t
 
-  :mode ("\\.kt\\'" . kotlin-ts-mode)
-  :mode ("\\.kts?\\'" . kotlin-ts-mode)
+;;   :mode ("\\.kt\\'" . kotlin-ts-mode)
+;;   :mode ("\\.kts?\\'" . kotlin-ts-mode)
 
-  :init
-  (setq kotlin-mode-indent-offset b7r6/indent-width)
-  (setq kotlin-mode-indent-offset b7r6/indent-width)
-  (setq kotlin-tab-width b7r6/indent-width)
-  (setq kotlin-ts-mode-indent-offset b7r6/indent-width)
+;;   :init
+;;   (setq kotlin-mode-indent-offset b7r6/indent-width)
+;;   (setq kotlin-mode-indent-offset b7r6/indent-width)
+;;   (setq kotlin-tab-width b7r6/indent-width)
+;;   (setq kotlin-ts-mode-indent-offset b7r6/indent-width)
 
-  :config
-  (add-to-list 'eglot-server-programs '(kotlin-ts-mode . ("kotlin-language-server")))
+;;   :config
+;;   (add-to-list 'eglot-server-programs '(kotlin-ts-mode . ("kotlin-language-server")))
 
-  :bind (:map kotlin-ts-mode-map ("M-z" . hyper-modern/ktlint-format-buffer))
+;;   :bind (:map kotlin-ts-mode-map ("M-z" . hyper-modern/ktlint-format-buffer))
 
-  :hook (kotlin-mode . eglot-ensure))
+;;   :hook (kotlin-mode . eglot-ensure))
 
 ;;
 ;; `gradle`
@@ -847,9 +910,9 @@
 
   :config
   ;; anthropic
-  (gptel-make-anthropic "opus"
+  (gptel-make-anthropic "anthropic"
     :stream t
-    ;; :key "..."
+    :key "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"
     )
 
   ;; local `llama.cpp`
@@ -910,14 +973,6 @@
 ;; `current-window-only`
 ;;
 
-(use-package current-window-only
-  :straight (current-window-only
-             :type git
-             :host github
-             :repo "FrostyX/current-window-only")
-  :config
-  (current-window-only-mode))
-
 ;; TODO(b7r6): finish adding v0.1.0 tags...
 (use-package svg-tag-mode
   :ensure t
@@ -930,8 +985,12 @@
 
   (svg-tag-mode))
 
+;; TODO(b7r6): debug this...
+;;
 ;; (use-package current-window-only
 ;;   :straight (current-window-only
 ;;              :type git
 ;;              :host github
-;;              :repo "FrostyX/current-window-only"))
+;;              :repo "FrostyX/current-window-only")
+;;   :config
+;;   (current-window-only-mode))
