@@ -33,16 +33,21 @@
 
 (defvar file-name-handler-alist-original file-name-handler-alist)
 
-(setq gc-cons-threshold        most-positive-fixnum
-      gc-cons-percentage       0.6
-      file-name-handler-alist  nil
-      site-run-file            nil)
+(setq
+ gc-cons-threshold        most-positive-fixnum
+ gc-cons-percentage       0.6
+ file-name-handler-alist  nil
+ site-run-file            nil)
 
 (defvar hyper-modern/gc-cons-threshold (* 256 1024 1024))
 
 (add-hook
  'emacs-startup-hook
  (lambda ()
+
+   (defvar compat-30-file (expand-file-name "lib/compat-30.el" user-emacs-directory))
+   (load compat-30-file 'noerror 'nomessage)
+
    (setq gc-cons-threshold hyper-modern/gc-cons-threshold
          gc-cons-percentage 0.1
          file-name-handler-alist file-name-handler-alist-original)))
@@ -88,13 +93,33 @@
 ;; global `emacs` settings
 ;;
 
+(defun hyper-modern/setup-backup-and-autosave-directories ()
+  "Set up Emacs backup and auto-save directories."
+
+  (let* ((cache-dir (or (getenv "XDG_CACHE_HOME")
+                        (expand-file-name "~/.cache")))
+         (emacs-cache-dir (expand-file-name "emacs" cache-dir))
+         (backup-dir (expand-file-name "backups" emacs-cache-dir))
+         (auto-save-dir (expand-file-name "auto-saves" emacs-cache-dir)))
+
+    (dolist (dir (list backup-dir auto-save-dir))
+      (unless (file-exists-p dir)
+        (make-directory dir t)))
+
+    (setq backup-directory-alist `(("." . ,backup-dir))
+          auto-save-file-name-transforms `((".*" ,auto-save-dir t))
+          auto-save-list-file-prefix (expand-file-name "saves-" auto-save-dir))
+
+    (setq create-lockfiles nil)
+    ))
+
 (use-package emacs
   :ensure nil
 
   :preface
   ;; TODO(b7r6): support multiple profiles/configs based on `$USER`...
   (defvar b7r6/indent-width 2)
-  (defvar b7r6/max-columns 100)
+  (defvar b7r6/max-columns 80)
 
   (defvar b7r6/font-family "BerkeleyMono Nerd Font Mono")
   (defvar b7r6/font-height 150)
@@ -117,7 +142,7 @@
   (setq-default c-basic-offset   b7r6/indent-width) ; set offset for languages using C style indentation
   (setq-default standard-indent  b7r6/indent-width) ; set default number of spaces for indentation
 
-  ;; modern global defautls
+  ;; hyper modern global defautls
   (setq auto-save-default               nil)
   (setq confirm-kill-processes          nil)
   (setq debug-on-error                  nil)
@@ -139,9 +164,10 @@
   (setq cursor-in-non-selected-windows  nil)
   (setq backup-by-copying                 t)
 
-  ;; TODO(b7r6): unfuck the swap files...
 
-  (put 'upcase-region 'disabled nil)
+  ;; random files in my dirs, that's the shit i don't like...
+  (hyper-modern/setup-backup-and-autosave-directories)
+
 
   ;; global built-in modes
   (blink-cursor-mode       +1)
@@ -154,6 +180,7 @@
   (menu-bar-mode           -1)
   (show-paren-mode         +1)
 
+  (put 'upcase-region 'disabled nil)
   (fset 'yes-or-no-p 'y-or-n-p)
 
   ;; no pipes in vertical border
@@ -644,7 +671,9 @@
   :config
   (setq eglot-stay-out-of '("flymake" "company"))
 
-  :hook (eglot-managed-mode . (lambda () (flymake-mode -1)))
+  :hook (eglot-managed-mode . (lambda ()
+                                (eglot-inlay-hints-mode -1)
+                                (flymake-mode -1)))
   :hook (prog-mode . eglot-ensure)
   :hook (prog-mode . eldoc-mode))
 
@@ -653,17 +682,10 @@
 ;;   :hook (prog-mode . eldoc-box-hover-at-point-mode))
 
 ;;
-;; `markdown`
+;; `magit`
 ;;
 
-(use-package markdown-mode
-  :ensure t)
-
-;;
-;; `markdown`
-;;
-
-(use-package markdown-mode
+(use-package magit
   :ensure t)
 
 ;;
@@ -694,8 +716,6 @@
 (use-package nix-mode
   :after nixpkgs-fmt
   :ensure t
-  ;; TODO(b7r6): unfuck this...
-  ;; :bind (:map nix-mode-map ("M-z" . nix-nixfmt-bin))
   )
 
 ;;
@@ -733,7 +753,7 @@
 ;;   ;; :bind (:map c++-mode-map ("M-z" . clang-format-buffer))
 ;;   )
 
-;; (setq c++-ts-mode c++-mode)
+;; (setq c++-mode c++-mode)
 ;; (add-hook 'c++-mode-hook '(lambda () (message "c++ in the house")))
 
 
@@ -744,28 +764,33 @@
 ;; `python` support
 ;;
 
-(use-package blacken
-  :ensure t)
+;; (use-package blacken
+;;   :ensure t)
 
-(use-package py-isort
-  :ensure t)
+;; (use-package py-isort
+;;   :ensure t)
 
-(defun format-python-buffer ()
-  (blacken-buffer)
-  ;; TODO(b7r6): evaluate whether or not we want this...
-  ;; (py-isort-buffer)
-  )
+(use-package yapify
+  :straight (yapify
+             :type git
+             :host github
+             :repo "JorisE/yapfify"))
+
 
 (use-package python
-  :mode ("\\.py\\'" . python-ts-mode)
+  :mode (("\\.py\\'" . python-mode)
+         ("\\.pconf\\'" . python-mode)
+         ("\\.pinc\\'" . python-mode)
+         ("\\.proto-validator\\'" . python-mode))
 
   ;; TODO(b7r6): figure this out...
   ;; :init
   ;; (setq python-indent-offset b7r6/indent-width)
 
   :config
-  :bind (:map python-ts-mode-map
-              ("M-z" . blacken-buffer)))
+  :bind (:map python-mode-map
+              ("M-z" . yapfify-buffer))
+  )
 
 
 ;;
@@ -777,13 +802,13 @@
   :ensure t
 
   :config
-  (setq java-ts-mode-indent-offset b7r6/indent-width)
+  (setq java-mode-indent-offset b7r6/indent-width)
 
   (add-to-list
    'eglot-server-programs
-   '(java-ts-mode . ("java-language-server")))
+   '(java-mode . ("java-language-server")))
 
-  :hook (java-ts-mode . (lambda () (setq format-all-formatters '(("Java" (clang-format))))))
+  :hook (java-mode . (lambda () (setq format-all-formatters '(("Java" (clang-format))))))
   :mode "\\.java\\'")
 
 ;;
@@ -795,23 +820,23 @@
   :load-path "lib"
   :after emacs)
 
-;; (use-package kotlin-ts-mode
+;; (use-package kotlin-mode
 ;;   :after hyper-modern-ktlint-format
 ;;   :ensure t
 
-;;   :mode ("\\.kt\\'" . kotlin-ts-mode)
-;;   :mode ("\\.kts?\\'" . kotlin-ts-mode)
+;;   :mode ("\\.kt\\'" . kotlin-mode)
+;;   :mode ("\\.kts?\\'" . kotlin-mode)
 
 ;;   :init
 ;;   (setq kotlin-mode-indent-offset b7r6/indent-width)
 ;;   (setq kotlin-mode-indent-offset b7r6/indent-width)
 ;;   (setq kotlin-tab-width b7r6/indent-width)
-;;   (setq kotlin-ts-mode-indent-offset b7r6/indent-width)
+;;   (setq kotlin-mode-indent-offset b7r6/indent-width)
 
 ;;   :config
-;;   (add-to-list 'eglot-server-programs '(kotlin-ts-mode . ("kotlin-language-server")))
+;;   (add-to-list 'eglot-server-programs '(kotlin-mode . ("kotlin-language-server")))
 
-;;   :bind (:map kotlin-ts-mode-map ("M-z" . hyper-modern/ktlint-format-buffer))
+;;   :bind (:map kotlin-mode-map ("M-z" . hyper-modern/ktlint-format-buffer))
 
 ;;   :hook (kotlin-mode . eglot-ensure))
 
@@ -871,12 +896,12 @@
   :config
   (push 'eslint compilation-error-regexp-alist))
 
-(use-package typescript-ts-mode
+(use-package typescript-mode
   :after prettier
   :ensure t
 
   :config
-  (setq typescript-ts-mode-indent-offset b7r6/indent-width)
+  (setq typescript-mode-indent-offset b7r6/indent-width)
 
   (defun pnpm-lint ()
     (interactive)
@@ -887,58 +912,49 @@
     (compilation-start "pnpm build" 'compilation-mode))
 
   :hook
-  (typescript-ts-mode . (lambda () (setq format-all-formatters '(("TypeScript" (prettier))))))
-  (tsx-ts-mode . (lambda () (setq format-all-formatters '(("TSX" (prettier)))))))
+  (typescript-mode . (lambda () (setq format-all-formatters '(("TypeScript" (prettier))))))
+  (tsx-mode . (lambda () (setq format-all-formatters '(("TSX" (prettier)))))))
+
+;;
+;; `haskell-mode`
+;;
+
+(use-package haskell-mode
+  :ensure true)
+
+;;
+;; `markdown`
+;;
+
+(use-package markdown-mode
+  :ensure t)
+
+;;
+;; `docker`
+;;
+
+(use-package dockerfile-mode
+  :ensure t)
+
+;;
+;; `yaml-mode`
+;;
+
+(use-package yaml-mode
+  :ensure t)
+
+;;
+;; `mustache-mode`
+;;
+
+(use-package mustache-mode
+  :ensure t)
 
 ;;
 ;; `lua` support
 ;;
 
 (use-package lua-mode
-  :ensure t)
-
-;;
-;; unsorted
-;;
-
-;;
-;; `gptel`
-;;
-
-(use-package gptel
-  :ensure t
-
-  :config
-  ;; anthropic
-  (gptel-make-anthropic "anthropic"
-    :stream t
-    :key "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"
-    )
-
-  ;; local `llama.cpp`
-  (gptel-make-openai "llama-cpp"
-    :stream t
-    :protocol "http"
-    :host "127.0.0.1:8080"
-    :models '("dolphin-8x7-v0.1-gguf-q_4_km"))
-
-  ;; "open" ai
-  ;; (setq gptel-api-key "...")
-  )
-
-
-;;
-;; `llama-cpp`
-;;
-
-(use-package llama-cpp
-  :ensure t)
-
-;;
-;; `magit`
-;;
-
-(use-package magit
   :ensure t)
 
 ;;
@@ -970,20 +986,247 @@
   :ensure t)
 
 ;;
-;; `current-window-only`
+;; unsorted
 ;;
 
-;; TODO(b7r6): finish adding v0.1.0 tags...
-(use-package svg-tag-mode
+;;
+;; `gptel`
+;;
+
+(use-package gptel
   :ensure t
+
   :config
   (setq
-   svg-tag-tags
-   '(("TODO(b7r6):" .
-      ((lambda (tag)
-         (svg-tag-make "TODO" :inverse t :radius 0 :face 'font-lock-comment-face))))))
+   gptel-model "anthropic:claude-3-5-sonnet-20240620"
+   gptel-backend
+   (gptel-make-anthropic "sonnet-3.5"
+     :stream t :key "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"))
 
-  (svg-tag-mode))
+  ;; local `llama.cpp`
+  (gptel-make-openai "llama-cpp"
+    :stream t
+    :protocol "http"
+    :host "127.0.0.1:8080"
+    :models '("dolphin-8x7-v0.1-gguf-q_4_km"))
+
+  ;; "open" ai
+  (setq gptel-api-key
+        "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")
+  )
+
+;;
+;; `hyper-modern-ai-interface`
+;;
+
+;;
+;; TODO(b7r6): get this hoisted out into the library file...
+;;
+;; (use-package hyper-modern-ai-interface
+;;   :straight (:type built-in)
+;;   :load-path "lib"
+;;   :after gptel
+;;   :bind ("C-c c" . hyper-modern-map))
+
+(defcustom hyper-modern/gptel-buffer-name "*HYPER // MODERN // AI*"
+  "Name of the buffer used for GPTel interactions."
+  :type 'string
+  :group 'hyper-modern)
+
+(defvar hyper-modern/gptel-response-timer nil
+  "Timer for checking GPTel response.")
+
+(defvar hyper-modern/gptel-last-point nil
+  "Last known maximum point in the GPTel buffer.")
+
+(defvar hyper-modern/gptel-stable-count 0
+  "Counter for how many checks the buffer size has remained stable.")
+
+(defvar hyper-modern/gptel-prompts
+  '(("Review" . "As an expert programmer, review the following code. Focus on efficiency, readability, and adherence to best practices. Provide concise, actionable feedback:\n\n")
+    ("Refactor" . "Refactor the following code to improve its structure and efficiency. Maintain its functionality while enhancing readability and performance. Explain your changes:\n\n")
+    ("Optimize" . "Analyze this code for performance bottlenecks and suggest optimizations. Consider time complexity, memory usage, and any language-specific optimizations:\n\n")
+    ("Explain" . "Provide a clear, concise explanation of what this code does. Break down complex parts and highlight any notable patterns or algorithms used:\n\n")
+    ("Debug" . "Examine this code for potential bugs or edge cases. Suggest fixes and explain your reasoning. If you see no bugs, it's fine to just say that.:\n\n")
+    ("Modernize" . "Update this code to use more modern language features and idioms. Explain how these changes improve the code:\n\n")
+    ("Document" . "Generate comprehensive documentation for this code. Include function purposes, parameters, return values, and any important implementation details:\n\n")
+    ("Test" . "Propose a set of unit tests for this code. Cover main functionality, edge cases, and potential failure modes:\n\n")
+    ("Custom" . ""))
+  "Alist of optimized prompts for Sonnet 3.5 interactions.")
+
+
+(defun hyper-modern/get-language-from-mode ()
+  "Get the language name from the current major mode."
+  (let ((mode-name (symbol-name major-mode)))
+    (if (string-match "\\(.*\\)-mode$" mode-name)
+        (match-string 1 mode-name)
+      mode-name)))
+
+(defun hyper-modern/get-region-content ()
+  "Get the content of the selected region."
+  (if (use-region-p)
+      (buffer-substring-no-properties (region-beginning) (region-end))
+    (user-error "No region selected")
+    ))
+
+
+(defun hyper-modern/format-content (content language)
+  "Format CONTENT with language-specific code blocks for LANGUAGE."
+  (format "```%s\n%s\n```" language content))
+
+(defun hyper-modern/get-or-create-gptel-buffer ()
+  "Get or create the GPTel buffer."
+  (or (get-buffer hyper-modern/gptel-buffer-name)
+      (gptel hyper-modern/gptel-buffer-name)))
+
+(defun hyper-modern/post-gptel-response (response-begin response-end)
+  "Function to run after `gptel` response is complete."
+  (let ((gptel-buffer (or (hyper-modern/get-or-create-gptel-buffer)
+                          (user-error "Failed to create or get gptel buffer"))))
+
+    (display-buffer gptel-buffer '(display-buffer-same-window))
+    (when (buffer-local-value 'hyper-modern/gptel-recentering-needed (current-buffer))
+      (goto-char response-end)
+      (recenter -1)
+      (setq-local hyper-modern/gptel-recentering-needed nil))
+    ))
+
+(add-hook 'gptel-post-response-functions #'hyper-modern/post-gptel-response)
+
+(defun hyper-modern/go-to-gptel-buffer ()
+  "Function to run after `gptel` response is complete."
+  (interactive)
+  (let ((gptel-buffer (or (hyper-modern/get-or-create-gptel-buffer)
+                          (user-error "Failed to create or get gptel buffer"))))
+
+    (display-buffer gptel-buffer '(display-buffer-same-window))
+    ))
+
+(defun hyper-modern/gptel-send-region (prompt-key)
+  "Send the selected region to gptel with a specified prompt.
+PROMPT-KEY is a key in `hyper-modern/gptel-prompts'."
+  (interactive
+   (list (completing-read "Choose prompt: "
+                          (mapcar #'car hyper-modern/gptel-prompts))))
+  (unless (boundp 'hyper-modern/gptel-prompts)
+    (user-error "hyper-modern/gptel-prompts is not defined"))
+
+  (unless (region-active-p)
+    (user-error "No active region"))
+
+  (unless (fboundp 'gptel-send)
+    (user-error "gptel is not available"))
+
+  (let* ((region-content (hyper-modern/get-region-content))
+         (language (hyper-modern/get-language-from-mode))
+         (prompt (or (cdr (assoc prompt-key hyper-modern/gptel-prompts))
+                     prompt-key))
+         (formatted-content (hyper-modern/format-content region-content language))
+         (gptel-buffer (or (hyper-modern/get-or-create-gptel-buffer)
+                           (user-error "Failed to create or get gptel buffer")))
+         (full-prompt (concat prompt "\n\n" formatted-content))
+         (original-window (selected-window)))
+
+    (display-buffer gptel-buffer '(display-buffer-same-window))
+
+    (with-current-buffer gptel-buffer
+      (goto-char (point-max))
+      (insert full-prompt)
+      (setq-local hyper-modern/gptel-recentering-needed t)
+      (gptel-send)
+      (goto-char (point-max))
+      (recenter-top-bottom 'center)
+      )
+
+    (message "HYPER // MODERN request sent with prompt: %s" prompt-key)
+    ))
+
+(defun hyper-modern/gptel-send-region-review ()
+  "Send the selected region to gptel for review."
+  (interactive)
+  (hyper-modern/gptel-send-region "Review"))
+
+(defun hyper-modern/gptel-send-region-refactor ()
+  "Send the selected region to gptel for refactoring suggestions."
+  (interactive)
+  (hyper-modern/gptel-send-region "Refactor"))
+
+(defun hyper-modern/gptel-send-region-optimize ()
+  "Send the selected region to gptel for optimization suggestions."
+  (interactive)
+  (hyper-modern/gptel-send-region "Optimize"))
+
+(defun hyper-modern/gptel-send-region-explain ()
+  "Send the selected region to gptel for explanation."
+  (interactive)
+  (hyper-modern/gptel-send-region "Explain"))
+
+(defun hyper-modern/gptel-send-region-debug ()
+  "Send the selected region to gptel for debugging."
+  (interactive)
+  (hyper-modern/gptel-send-region "Debug"))
+
+(defun hyper-modern/gptel-send-region-modernize ()
+  "Send the selected region to gptel for modernization suggestions."
+  (interactive)
+  (hyper-modern/gptel-send-region "Modernize"))
+
+(defun hyper-modern/gptel-send-region-document ()
+  "Send the selected region to gptel for documentation generation."
+  (interactive)
+  (hyper-modern/gptel-send-region "Document"))
+
+(defun hyper-modern/gptel-send-region-test ()
+  "Send the selected region to gptel for test case suggestions."
+  (interactive)
+  (hyper-modern/gptel-send-region "Test"))
+
+(defun hyper-modern/gptel-send-region-custom ()
+  "Send the selected region to gptel with a custom prompt."
+  (interactive)
+  (let ((custom-prompt (read-string "Enter custom prompt: ")))
+    (hyper-modern/gptel-send-region custom-prompt)))
+
+(defvar hyper-modern/ai-interface-keymap
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "w") #'hyper-modern/go-to-gptel-buffer)
+    (define-key map (kbd "r") #'hyper-modern/gptel-send-region-review)
+    (define-key map (kbd "f") #'hyper-modern/gptel-send-region-refactor)
+    (define-key map (kbd "o") #'hyper-modern/gptel-send-region-optimize)
+    (define-key map (kbd "e") #'hyper-modern/gptel-send-region-explain)
+    (define-key map (kbd "d") #'hyper-modern/gptel-send-region-debug)
+    (define-key map (kbd "m") #'hyper-modern/gptel-send-region-modernize)
+    (define-key map (kbd "c") #'hyper-modern/gptel-send-region-document)
+    (define-key map (kbd "t") #'hyper-modern/gptel-send-region-test)
+    (define-key map (kbd "u") #'hyper-modern/gptel-send-region-custom)
+    map)
+  "Keymap for hyper-modern GPTel commands.")
+
+(global-set-key (kbd "C-c c") hyper-modern/ai-interface-keymap)
+
+;;
+;; `llama-cpp`
+;;
+
+(use-package llama-cpp
+  :ensure t)
+
+;;
+;; `svg-tag-mode`
+;;
+
+;;
+;; TODO(b7r6): get this working again...
+;;
+;; (use-package svg-tag-mode
+;;   :ensure t
+;;   :init  ; Use :init instead of :config to ensure it runs at startup
+;;   (setq svg-tag-tags
+;;         '(("TODO(b7r6):" .
+;;            ((lambda (tag)
+;;               (svg-tag-make "TODO" :inverse t :radius 0 :face 'font-lock-comment-face))))))
+;;   :config
+;;   (svg-tag-mode 1))  ; Enable the mode at startup
 
 ;; TODO(b7r6): debug this...
 ;;

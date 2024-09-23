@@ -30,8 +30,6 @@ export TERM="xterm-256color"
 export VIVID_THEME="nord"
 export BAT_THEME="Nord"
 
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-
 #
 # `HYPER // MODERN` path handling
 #
@@ -103,7 +101,8 @@ alias la="eza ${STANDARD_EZA_FLAGS} --long --all"
 # hyper-modern `ls` with tree increasing tree depth, `lt`, `ltt`, `lttt`...
 alias lt="eza ${STANDARD_EZA_FLAGS} --tree --level 2"
 alias lt="eza ${STANDARD_EZA_FLAGS} --tree --level 3"
-alias lttt="eza ${STANDARD_EZA_FLAGS} --tree --level 4"
+alias ltt="eza ${STANDARD_EZA_FLAGS} --tree --level 4"
+alias lttt="eza ${STANDARD_EZA_FLAGS} --tree --level 5"
 
 # list to "arbitrary" depth (99)
 alias ltx="eza ${STANDARD_EZA_FLAGS} --tree --level 99"
@@ -121,5 +120,5 @@ eval "$(mcfly init bash)"
 eval "$(zoxide init bash)"
 eval "$(starship init bash)"
 
-
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+export NIXPKGS_ALLOW_UNFREE=1
+export NIXPKGS_ALLOW_INSECURE=1
