@@ -242,9 +242,9 @@
 ;; `vterm.el`
 ;;
 
-;; (use-package vterm
-;;   :ensure t
-;;   :hook (vterm-mode . (lambda () (setq-local global-hl-line-mode nil))))
+(use-package vterm
+  :ensure t
+  :hook (vterm-mode . (lambda () (setq-local global-hl-line-mode nil))))
 
 ;;
 ;; `smart-split`
@@ -423,11 +423,6 @@
 (use-package fzf
   :ensure t)
 
-;; (use-package amx
-;;   :ensure t
-;;   :config
-;;   (amx-mode))
-
 (use-package vertico
   :ensure t
 
@@ -451,32 +446,9 @@
 
 (use-package marginalia
   :ensure t
-
-  ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
-  ;; available in the *Completions* buffer, add it to the
-  ;; `completion-list-mode-map'.
   :bind (:map minibuffer-local-map ("M-A" . marginalia-cycle))
-
-  ;; Marginalia must be activated in the :init section of use-package such that
-  ;; the mode gets enabled right away. Note that this forces loading the
-  ;; package.
   :init
   (marginalia-mode))
-
-;; (use-package vertico-posframe
-;;   :after vertico posframe
-;;   :ensure t
-
-;;   :config
-;;   (vertico-posframe-mode +1)
-
-;;   :custom
-;;   (vertico-posframe-parameters '((left-fringe . 8) (right-fringe . 8)))
-;;   (vertico-posframe-width b7r6/posframe-width)
-;;   (vertico-posframe-height b7r6/posframe-height)
-
-;;   (vertico-posframe-poshandler 'posframe-poshandler-frame-center)
-;;   (vertico-count b7r6/completion-count))
 
 ;;
 ;; project/directory searching
@@ -764,18 +736,17 @@
 ;; `python` support
 ;;
 
-;; (use-package blacken
-;;   :ensure t)
+(use-package py-isort
+  :ensure t
+  :after python)
 
-;; (use-package py-isort
-;;   :ensure t)
+(use-package yapfify
+  :ensure t
+  :after python)
 
-(use-package yapify
-  :straight (yapify
-             :type git
-             :host github
-             :repo "JorisE/yapfify"))
-
+(use-package ruff-format
+  :ensure t
+  )
 
 (use-package python
   :mode (("\\.py\\'" . python-mode)
@@ -783,15 +754,13 @@
          ("\\.pinc\\'" . python-mode)
          ("\\.proto-validator\\'" . python-mode))
 
-  ;; TODO(b7r6): figure this out...
-  ;; :init
-  ;; (setq python-indent-offset b7r6/indent-width)
-
   :config
   :bind (:map python-mode-map
-              ("M-z" . yapfify-buffer))
-  )
-
+              ("M-z" . (lambda ()
+                         (interactive)
+                         (progn
+                           (py-isort-buffer)
+                           (yapfify-buffer))))))
 
 ;;
 ;; `java` support
@@ -997,11 +966,11 @@
   :ensure t
 
   :config
-  (setq
-   gptel-model "anthropic:claude-3-5-sonnet-20240620"
-   gptel-backend
-   (gptel-make-anthropic "sonnet-3.5"
-     :stream t :key "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"))
+  ;; (setq
+  ;;  gptel-model "anthropic:claude-3-5-sonnet-20240620"
+  ;;  gptel-backend
+  ;;  (gptel-make-anthropic "sonnet-3.5"
+  ;;    :stream t :key "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"))
 
   ;; local `llama.cpp`
   (gptel-make-openai "llama-cpp"

@@ -122,3 +122,5 @@ eval "$(starship init bash)"
 
 export NIXPKGS_ALLOW_UNFREE=1
 export NIXPKGS_ALLOW_INSECURE=1
+
+alias n="cd ~/src/lmai && nix develop .#NixOS"
