@@ -8,119 +8,101 @@
 #
 #
 
-# TODO(b7r6): the goal is for this whole file to be `flox activate -r b7r6/hyper-modern`...
+# Early exit if not running interactively
+[[ $- != *i* ]] && return
 
-#
-# use flox to bring up environment
-#
+# OS detection
+OS="unknown"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+	OS="macos"
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+	OS="linux"
+fi
 
-# declare -r FLOX="$(which flox)"
-
-# if [ ! -x "${FLOX}" ]; then
-# 	echo "'flox' is not on the path and executable, please visit https://flox.dev to install..."
-# 	exit 1
-# fi
-
-# TODO(b7r6): support 16-color well...
+# Terminal settings
 export COLORTERM="truecolor"
-export EDITOR="nvim"
 export TERM="xterm-256color"
+export EDITOR="nvim"
 
-# TODO(b7r6): make this easily configurable as part of setup...
+# Theme settings
 export VIVID_THEME="nord"
 export BAT_THEME="Nord"
 
-#
-# `HYPER // MODERN` path handling
-#
-
-# TODO(b7r6): find a library of basic shit like this done well and stop wasting your life...
-HYPER_MODERN_ADD_TO_PATH() {
-	local new_path="$1"
-
-	# TODO(b7r6): ideally we'd be using portable stuff here...
-	if [ -d "${new_path}" ] && [[ ":${PATH}:" != *":${new_path}:"* ]]; then
-		export PATH="${PATH:+${PATH}:}${path}"
+# Function to safely add to PATH
+path_append() {
+	if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
+		PATH="${PATH:+"$PATH:"}$1"
 	fi
 }
 
-# TODO(b7r6): b7r6-unfsck-this...
+# Homebrew setup
+setup_homebrew() {
+	if [[ "$OS" == "macos" ]]; then
+		BREW_PREFIX="/opt/homebrew"
+	else
+		BREW_PREFIX="/home/linuxbrew/.linuxbrew"
+	fi
 
+	if [ -d "$BREW_PREFIX" ]; then
+		eval "$("$BREW_PREFIX/bin/brew" shellenv)"
+		path_append "$BREW_PREFIX/bin"
+	fi
+}
+
+# Path additions
 declare -a USER_PATHS=(
-#   "${HOME}/.local/bin"
-#   "${HOME}/.bin"
-  "/opt/homebrew/bin"
+	"${HOME}/.local/bin"
+	"${HOME}/.bin"
 )
 
 for path in "${USER_PATHS[@]}"; do
-  HYPER_MODERN_ADD_TO_PATH "${path}"
+	path_append "$path"
 done
 
-# TODO(b7r6): get here...
-# source "${HOME}/.local/share/hyper-modern/hyper-modern-rc.sh"
+setup_homebrew
 
-# TODO(b7r6): pull this pattern into a utility (or better yet, get yourself a real `bash` polyfill kid)...
+# Alias definitions
+if command -v eza >/dev/null 2>&1; then
+	export STANDARD_EZA_FLAGS="--icons -F -H --group-directories-first --git -1 --color=always"
+	alias l="eza ${STANDARD_EZA_FLAGS}"
+	alias la="eza ${STANDARD_EZA_FLAGS} --long --all"
+	alias lt="eza ${STANDARD_EZA_FLAGS} --tree --level 2"
+	alias ltt="eza ${STANDARD_EZA_FLAGS} --tree --level 3"
+	alias lttt="eza ${STANDARD_EZA_FLAGS} --tree --level 4"
+	alias ltx="eza ${STANDARD_EZA_FLAGS} --tree --level 99"
+else
+	# Fallback to standard ls with colors
+	alias l="ls --color=auto"
+	alias la="ls -ltrah --color=auto"
+fi
 
-# TODO(b7r6): b7r6-unfsck-this...
-# declare MCFLY="$(which mcfly)"
-# if [ -x "${MCFLY}" ]; then
-# 	echo "INFO: initializing '${MCFLY}'..."
-# 	eval "$(mcfly init bash)"
-# else
-# 	echo "WARNING: 'mcfly' is not on the path and executable..."
-# fi
+# Utility aliases with existence checks
+command -v jq >/dev/null 2>&1 && alias jq="jq -C"
+command -v rg >/dev/null 2>&1 && alias rg="rg --color=always --colors 'match:fg:white' --colors 'path:fg:blue'"
+command -v bat >/dev/null 2>&1 && alias bat="bat --color=always"
 
-# declare ZOXIDE="$(zoxide)"
-# if [ -x "${ZOXIDE}" ]; then
-# 	echo "INFO: initializing '${ZOXIDE}'..."
-# 	eval "$(zoxide init bash)"
-# else
-# 	echo "WARNING: 'zoxide' is not on the path and executable..."
-# fi
+# Optional tool initializations
+init_optional_tools() {
+	local tool=$1
+	local init_command=$2
+	if command -v "$tool" >/dev/null 2>&1; then
+		eval "$init_command"
+	fi
+}
 
-# declare STARSHIP="$(starship)"
-# if [ -x "${STARSHIP}" ]; then
-# 	echo "INFO: initializing '${STARSHIP}'..."
-# 	eval "$(starship init bash)"
-# else
-# 	echo "WARNING: 'starship' is not on the path and executable..."
-# fi
+init_optional_tools "mcfly" "$(mcfly init bash)"
+init_optional_tools "zoxide" "$(zoxide init bash)"
+init_optional_tools "starship" "$(starship init bash)"
 
-#
-# `HYPER // MODERN` standard aliases
-#
+# Load additional local configurations if they exist
+for config in ~/.bashrc.d/*.sh; do
+	[ -r "$config" ] && source "$config"
+done
 
-export STANDARD_EZA_FLAGS="--icons -F -H --group-directories-first --git -1 --color=always"
+# Load uv environment if present
+if [ -f "$HOME/.local/bin/env" ]; then
+	source "$HOME/.local/bin/env"
+fi
 
-# standard hyper-modern `ls` command
-alias l="eza ${STANDARD_EZA_FLAGS}"
-
-# standard hyper-modern `ls -ltrah` or "list all" command
-alias la="eza ${STANDARD_EZA_FLAGS} --long --all"
-
-# hyper-modern `ls` with tree increasing tree depth, `lt`, `ltt`, `lttt`...
-alias lt="eza ${STANDARD_EZA_FLAGS} --tree --level 2"
-alias lt="eza ${STANDARD_EZA_FLAGS} --tree --level 3"
-alias ltt="eza ${STANDARD_EZA_FLAGS} --tree --level 4"
-alias lttt="eza ${STANDARD_EZA_FLAGS} --tree --level 5"
-
-# list to "arbitrary" depth (99)
-alias ltx="eza ${STANDARD_EZA_FLAGS} --tree --level 99"
-
-# reasonable defaults for `rg` / `bat` / `jq`
-alias jq="jq -C"
-alias rg="rg --color=always --colors 'match:fg:white' --colors 'path:fg:blue'"
-alias bat="bat --color=always"
-
-#
-# `mcfly` / `zoxide` / `thefuck`
-#
-
-eval "$(mcfly init bash)"
-eval "$(zoxide init bash)"
-eval "$(starship init bash)"
-
-export NIXPKGS_ALLOW_UNFREE=1
-export NIXPKGS_ALLOW_INSECURE=1
-
-alias n="cd ~/src/lmai && nix develop .#NixOS"
+# Clean up
+unset -f init_optional_tools setup_homebrew

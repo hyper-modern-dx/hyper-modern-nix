@@ -17,9 +17,9 @@ return {
   -- lack berkeley mono...
   -- font = wezterm.font("Liga SFMono Nerd Font", {weight="Medium"}),
 
-  font = wezterm.font("Berkeley Mono", {weight="Bold"}),
-  -- font = wezterm.font("BerkeleyMono Nerd Font Mono", {weight="Bold"}),
-  font_size = 14.0,
+  font = wezterm.font("Berkeley Mono", {weight="Medium"}),
+  -- font = wezterm.font("BerkeleyMono Nerd Font Mono", {weight="Medium"}),
+  font_size = 14.5,
 
   default_cursor_style = "BlinkingBlock",
 

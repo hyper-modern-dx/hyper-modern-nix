@@ -966,11 +966,11 @@
   :ensure t
 
   :config
-  ;; (setq
-  ;;  gptel-model "anthropic:claude-3-5-sonnet-20240620"
-  ;;  gptel-backend
-  ;;  (gptel-make-anthropic "sonnet-3.5"
-  ;;    :stream t :key "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"))
+  (setq
+   gptel-model "anthropic:claude-3-5-sonnet-20240620"
+   gptel-backend
+   (gptel-make-anthropic "sonnet-3.5"
+     :stream t :key "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"))
 
   ;; local `llama.cpp`
   (gptel-make-openai "llama-cpp"
@@ -980,8 +980,8 @@
     :models '("dolphin-8x7-v0.1-gguf-q_4_km"))
 
   ;; "open" ai
-  (setq gptel-api-key
-        "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")
+  ;; (setq gptel-api-key
+  ;;       "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")
   )
 
 ;;
