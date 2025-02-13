@@ -15,11 +15,13 @@ return {
 
   -- TODO(b7r6): figure out how to do font fallback for pagans who
   -- lack berkeley mono...
-  -- font = wezterm.font("Liga SFMono Nerd Font", {weight="Medium"}),
 
-  font = wezterm.font("Berkeley Mono", {weight="Medium"}),
+  -- font = wezterm.font("Liga SFMono Nerd Font", {weight="Medium"}),
   -- font = wezterm.font("BerkeleyMono Nerd Font Mono", {weight="Medium"}),
-  font_size = 14.5,
+
+  font = wezterm.font("Berkeley Mono", {weight="Bold"}),
+  font_size = 13.5,
+  cell_width = 0.95,
 
   default_cursor_style = "BlinkingBlock",
 

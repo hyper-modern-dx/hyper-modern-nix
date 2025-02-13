@@ -1,16 +1,6 @@
 ;;; init.el --- -*- lexical-binding: t -*-
 
 ;;
-;;
-;;    ▬▬▬  ▬▬▬ ▬▬▬ ▬▬▬ ▬▬▬▬▬▬▬  ▬▬▬▬▬▬▬▬ ▬▬▬▬▬▬▬           ▬▬▬     ▬▬▬      ▬▬▬▬▬▬▬▬▬▬  ▬▬▬▬▬▬▬  ▬▬▬▬▬▬▬  ▬▬▬▬▬▬▬▬ ▬▬▬▬▬▬▬  ▬▬▬▬ ▬▬▬
-;;    ▬▬▬  ▬▬▬ ▬▬▬ ▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬      ▬▬▬  ▬▬▬         ▬▬▬     ▬▬▬       ▬▬▬ ▬▬▬ ▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬      ▬▬▬  ▬▬▬ ▬▬▬▬▬▬▬▬
-;;    ▬▬▬▬▬▬▬▬  ▬▬▬▬▬  ▬▬▬▬▬▬▬  ▬▬▬▬▬▬   ▬▬▬▬▬▬▬         ▬▬▬     ▬▬▬        ▬▬▬ ▬▬▬ ▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬▬▬▬   ▬▬▬▬▬▬▬  ▬▬▬▬▬▬▬▬
-;;    ▬▬▬  ▬▬▬   ▬▬▬   ▬▬▬      ▬▬▬      ▬▬▬ ▬▬▬        ▬▬▬     ▬▬▬         ▬▬▬     ▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬      ▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬▬
-;;    ▬▬▬  ▬▬▬   ▬▬▬   ▬▬▬      ▬▬▬▬▬▬▬▬ ▬▬▬  ▬▬▬      ▬▬▬     ▬▬▬          ▬▬▬     ▬▬▬  ▬▬▬▬▬▬  ▬▬▬▬▬▬▬  ▬▬▬▬▬▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬  ▬▬▬
-;;
-;;
-
-;;
 ;; "On The Design Of Text Editors" - https://arxiv.org/abs/2008.06030
 ;;
 
@@ -121,13 +111,13 @@
   (defvar b7r6/indent-width 2)
   (defvar b7r6/max-columns 80)
 
-  (defvar b7r6/font-family "BerkeleyMono Nerd Font Mono")
-  (defvar b7r6/font-height 150)
-  (defvar b7r6/font-weight 'semibold)
+  ;; (defvar b7r6/font-family "BerkeleyMono Nerd Font Mono")
+  ;; (defvar b7r6/font-height 150)
+  ;; (defvar b7r6/font-weight 'semibold)
 
-  (defvar b7r6/posframe-width 128)
-  (defvar b7r6/posframe-height 16)
-  (defvar b7r6/completion-count 16)
+  ;; (defvar b7r6/posframe-width 128)
+  ;; (defvar b7r6/posframe-height 16)
+  ;; (defvar b7r6/completion-count 16)
 
   :init
 
@@ -163,7 +153,7 @@
   (setq transient-mark-mode               t)
   (setq cursor-in-non-selected-windows  nil)
   (setq backup-by-copying                 t)
-
+  (setq select-enable-clipboard t)
 
   ;; random files in my dirs, that's the shit i don't like...
   (hyper-modern/setup-backup-and-autosave-directories)
@@ -367,7 +357,8 @@
    "C-x C-+" 'text-scale-increase
    "C-x C--" 'text-scale-decrease
    "C-x C-r" 'rg-dwim-project-dir
-   "C-x f"   'toggle-frame-fullscreen
+   "C-x d"   'consult-recent-file
+   "C-x f"   'consult-fd
 
    ;; `b7r6` standard keys
 
@@ -405,10 +396,11 @@
   (load-theme 'ono-sendai-hyper-modern :no-confirm)
 
   :config
-  (mapc
-   (lambda (face)
-     (set-face-attribute face nil :weight b7r6/font-weight :family b7r6/font-family))
-   (face-list)))
+  ;; (mapc
+  ;;  (lambda (face)
+  ;;    (set-face-attribute face nil :weight b7r6/font-weight :family b7r6/font-family))
+  ;;  (face-list))
+  )
 
 ;;
 ;; completion
@@ -493,16 +485,17 @@
   ;; TODO(b7r6): use proper `:bind`...
   (bind-key* "C-M-i" 'company-complete-common-or-cycle))
 
-(use-package company-box
-  :after company
-  :hook (company-mode . company-box-mode)
+;; (use-package company-box
+;;   :after company
+;;   :hook (company-mode . company-box-mode)
 
-  :config
+;;   :config
 
-  ;; TODO(b7r6): integrate with global font/face handling...
-  (add-to-list
-   'company-box-frame-parameters
-   '(font . "BerkeleyMono Nerd Font Mono-16:weight=bold")))
+;;   ;; TODO(b7r6): integrate with global font/face handling...
+;;   (add-to-list
+;;    'company-box-frame-parameters
+;;    '(font . "BerkeleyMono Nerd Font Mono-16:weight=bold"))
+;;   )
 
 ;;
 ;; `all-the-icons.el`
@@ -571,7 +564,7 @@
   (dashboard-navigator-buttons
    '(((" " "RELOAD // INIT " "" (lambda (&rest _) (load-file user-init-file))))))
 
-  ;; (dashboard-icon-type 'all-the-icons)
+  (dashboard-icon-type 'all-the-icons)
 
   ;; TODO: enable again when they work
   ;;       https://github.com/emacs-dashboard/emacs-dashboard/issues/459
@@ -758,9 +751,7 @@
   :bind (:map python-mode-map
               ("M-z" . (lambda ()
                          (interactive)
-                         (progn
-                           (py-isort-buffer)
-                           (yapfify-buffer))))))
+                         (ruff-format-buffer)))))
 
 ;;
 ;; `java` support
@@ -865,12 +856,22 @@
   :config
   (push 'eslint compilation-error-regexp-alist))
 
-(use-package typescript-mode
+(use-package json-ts-mode
+  :after prettier
+  :ensure t
+
+  :hook
+  (json-ts-mode . (lambda () (setq format-all-formatters '(("JSON" (prettier)))))))
+
+
+(use-package typescript-ts-mode
   :after prettier
   :ensure t
 
   :config
-  (setq typescript-mode-indent-offset b7r6/indent-width)
+  ;; (setq typescript-mode-indent-offset b7r6/indent-width)
+  (setq typescript-indent-level 2)     ; for typescript-mode
+  (setq tsx-indent-level 2)            ; for tsx-mode
 
   (defun pnpm-lint ()
     (interactive)
@@ -881,14 +882,28 @@
     (compilation-start "pnpm build" 'compilation-mode))
 
   :hook
-  (typescript-mode . (lambda () (setq format-all-formatters '(("TypeScript" (prettier))))))
-  (tsx-mode . (lambda () (setq format-all-formatters '(("TSX" (prettier)))))))
+  (typescript-ts-mode . (lambda () (setq format-all-formatters '(("TypeScript" (prettier))))))
+  (tsx-ts-mode . (lambda () (setq format-all-formatters '(("TSX" (prettier)))))))
+
+;; (use-package javascript-ts-mode
+;;   :after prettier
+;;   :ensure t
+;;   :hook
+;;   (javascript-ts-mode . (lambda () (setq format-all-formatters '(("JavaScript" (prettier))))))
+;;   (jsx-ts-mode . (lambda () (setq format-all-formatters '(("JSX" (prettier)))))))
 
 ;;
 ;; `haskell-mode`
 ;;
 
 (use-package haskell-mode
+  :ensure true)
+
+;;
+;; `ruby-mode`
+;;
+
+(use-package ruby-mode
   :ensure true)
 
 ;;
@@ -955,47 +970,33 @@
   :ensure t)
 
 ;;
-;; unsorted
-;;
-
-;;
 ;; `gptel`
 ;;
 
 (use-package gptel
   :ensure t
-
   :config
-  (setq
-   gptel-model "anthropic:claude-3-5-sonnet-20240620"
-   gptel-backend
-   (gptel-make-anthropic "sonnet-3.5"
-     :stream t :key "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"))
+  (setq gptel-max-tokens (* 8 1024)
+        gptel-response-length (* 4 1024))
 
-  ;; local `llama.cpp`
-  (gptel-make-openai "llama-cpp"
+  (setq gptel-backend
+        (gptel-make-openai "deepseek"
+          :stream t
+          :models '(deepseek-chat
+                   deepseek-coder
+                   deepseek-reasoner)
+          :host "api.deepseek.com"
+          :endpoint "/chat/completions"
+          :key "sk-be77179fc2e141a98dae94d3ed2aa73d"))
+
+  (gptel-make-anthropic "sonnet"
     :stream t
-    :protocol "http"
-    :host "127.0.0.1:8080"
-    :models '("dolphin-8x7-v0.1-gguf-q_4_km"))
+    :key "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"
+    :models '(claude-3-5-sonnet-20241022))
 
-  ;; "open" ai
-  ;; (setq gptel-api-key
-  ;;       "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")
-  )
-
-;;
-;; `hyper-modern-ai-interface`
-;;
-
-;;
-;; TODO(b7r6): get this hoisted out into the library file...
-;;
-;; (use-package hyper-modern-ai-interface
-;;   :straight (:type built-in)
-;;   :load-path "lib"
-;;   :after gptel
-;;   :bind ("C-c c" . hyper-modern-map))
+  (gptel-make-gemini "gemini"
+    :stream t
+    :key "AIzaSyD94WNHl0Bd4a8F80g63m4J9rnekBGc8X4"))
 
 (defcustom hyper-modern/gptel-buffer-name "*HYPER // MODERN // AI*"
   "Name of the buffer used for GPTel interactions."
@@ -1096,15 +1097,15 @@ PROMPT-KEY is a key in `hyper-modern/gptel-prompts'."
          (full-prompt (concat prompt "\n\n" formatted-content))
          (original-window (selected-window)))
 
-    (display-buffer gptel-buffer '(display-buffer-same-window))
-
+    ;; (display-buffer gptel-buffer '(display-buffer-same-window))
+    (display-buffer gptel-buffer)
     (with-current-buffer gptel-buffer
       (goto-char (point-max))
       (insert full-prompt)
       (setq-local hyper-modern/gptel-recentering-needed t)
       (gptel-send)
       (goto-char (point-max))
-      (recenter-top-bottom 'center)
+      ;; (recenter-top-bottom 'center)
       )
 
     (message "HYPER // MODERN request sent with prompt: %s" prompt-key)
@@ -1174,11 +1175,39 @@ PROMPT-KEY is a key in `hyper-modern/gptel-prompts'."
 (global-set-key (kbd "C-c c") hyper-modern/ai-interface-keymap)
 
 ;;
-;; `llama-cpp`
+;; `tree-sitter` grammar configuration
+;; TODO(b7r6): get this cleaned up...
 ;;
 
-(use-package llama-cpp
-  :ensure t)
+(setq
+ treesit-language-source-alist
+ '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+   (cmake "https://github.com/uyha/tree-sitter-cmake")
+   (css "https://github.com/tree-sitter/tree-sitter-css")
+   (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+   (go "https://github.com/tree-sitter/tree-sitter-go")
+   (html "https://github.com/tree-sitter/tree-sitter-html")
+   (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+   (json "https://github.com/tree-sitter/tree-sitter-json")
+   (make "https://github.com/alemuller/tree-sitter-make")
+   (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+   (python "https://github.com/tree-sitter/tree-sitter-python")
+   (ruby "https://github.com/tree-sitter/tree-sitter-ruby")
+   (toml "https://github.com/tree-sitter/tree-sitter-toml")
+   (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+   (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+   (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
+
+(defun ensure-treesit-languages ()
+  "Ensure all languages in treesit-language-source-alist are installed."
+  (dolist (lang-source treesit-language-source-alist)
+    (let ((lang (car lang-source)))
+      (unless (treesit-language-available-p lang)
+        (message "Installing tree-sitter grammar for %s" lang)
+        (treesit-install-language-grammar lang)))))
+
+(when (treesit-available-p)
+  (ensure-treesit-languages))
 
 ;;
 ;; `svg-tag-mode`

@@ -30,7 +30,7 @@
            (progn
              (delete-window (cadr windows))
              (smart-split--resize-windows-destructively (cons (car windows)
-							      (cddr windows))))
+							                                                (cddr windows))))
          (ignore-errors (delete-window (car windows))))))))
 
 (defun smart-split--subsplit (w)
@@ -49,7 +49,13 @@
    (smart-split--ordered-window-list))
 
   (walk-windows 'smart-split--subsplit)
-  (balance-windows))
+  (balance-windows)
+
+  ;; Switch each window to a new blank buffer
+  (walk-windows
+   (lambda (w)
+     (with-selected-window w
+       (switch-to-buffer (generate-new-buffer " *blank*"))))))
 
 (provide 'smart-split)
 ;;; smart-split.el ends here
