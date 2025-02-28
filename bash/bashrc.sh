@@ -1,13 +1,3 @@
-#
-#
-#  ▬▬▬  ▬▬▬ ▬▬▬ ▬▬▬ ▬▬▬▬▬▬▬  ▬▬▬▬▬▬▬▬ ▬▬▬▬▬▬▬        ▬▬▬     ▬▬▬   ▬▬▬▬▬▬▬▬▬▬  ▬▬▬▬▬▬▬  ▬▬▬▬▬▬▬  ▬▬▬▬▬▬▬▬ ▬▬▬▬▬▬▬  ▬▬▬▬ ▬▬▬
-#  ▬▬▬  ▬▬▬ ▬▬▬ ▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬      ▬▬▬  ▬▬▬      ▬▬▬     ▬▬▬    ▬▬▬ ▬▬▬ ▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬      ▬▬▬  ▬▬▬ ▬▬▬▬▬▬▬▬
-#  ▬▬▬▬▬▬▬▬  ▬▬▬▬▬  ▬▬▬▬▬▬▬  ▬▬▬▬▬▬   ▬▬▬▬▬▬▬      ▬▬▬     ▬▬▬     ▬▬▬ ▬▬▬ ▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬▬▬▬   ▬▬▬▬▬▬▬  ▬▬▬▬▬▬▬▬
-#  ▬▬▬  ▬▬▬   ▬▬▬   ▬▬▬      ▬▬▬      ▬▬▬ ▬▬▬     ▬▬▬     ▬▬▬      ▬▬▬     ▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬      ▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬▬
-#  ▬▬▬  ▬▬▬   ▬▬▬   ▬▬▬      ▬▬▬▬▬▬▬▬ ▬▬▬  ▬▬▬   ▬▬▬     ▬▬▬       ▬▬▬     ▬▬▬  ▬▬▬▬▬▬  ▬▬▬▬▬▬▬  ▬▬▬▬▬▬▬▬ ▬▬▬  ▬▬▬ ▬▬▬  ▬▬▬
-#
-#
-
 # Early exit if not running interactively
 [[ $- != *i* ]] && return
 
@@ -90,10 +80,6 @@ init_optional_tools() {
 	fi
 }
 
-init_optional_tools "mcfly" "$(mcfly init bash)"
-init_optional_tools "zoxide" "$(zoxide init bash)"
-init_optional_tools "starship" "$(starship init bash)"
-
 # Load additional local configurations if they exist
 for config in ~/.bashrc.d/*.sh; do
 	[ -r "$config" ] && source "$config"
@@ -105,8 +91,23 @@ if [ -f "$HOME/.local/bin/env" ]; then
 fi
 
 [[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]] && . "/opt/homebrew/etc/profile.d/bash_completion.sh"
+export VOLTA_HOME="$HOME/.volta"
+export PATH="$VOLTA_HOME/bin:$PATH"
+
+# TODO(b7r6): figure out why `z` freak-offs...
+init_optional_tools "mcfly" "$(mcfly init bash)"
+init_optional_tools "starship" "$(starship init bash)"
+init_optional_tools "zoxide" "$(zoxide init bash)"
 
 # Clean up
 unset -f init_optional_tools setup_homebrew
-export VOLTA_HOME="$HOME/.volta"
-export PATH="$VOLTA_HOME/bin:$PATH"
+
+
+. "$HOME/.atuin/bin/env"
+
+[[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
+eval "$(atuin init bash)"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"

@@ -35,7 +35,9 @@
  'emacs-startup-hook
  (lambda ()
 
-   (defvar compat-30-file (expand-file-name "lib/compat-30.el" user-emacs-directory))
+   (defvar compat-30-file
+     (expand-file-name "lib/compat-30.el" user-emacs-directory))
+
    (load compat-30-file 'noerror 'nomessage)
 
    (setq gc-cons-threshold hyper-modern/gc-cons-threshold
@@ -153,7 +155,6 @@
   (setq transient-mark-mode               t)
   (setq cursor-in-non-selected-windows  nil)
   (setq backup-by-copying                 t)
-  (setq select-enable-clipboard t)
 
   ;; random files in my dirs, that's the shit i don't like...
   (hyper-modern/setup-backup-and-autosave-directories)
@@ -191,10 +192,18 @@
     (tool-bar-mode -1)
 
     (when (member b7r6/font-family (font-family-list))
-      (set-face-attribute 'default nil :font b7r6/font-family :height b7r6/font-height :weight b7r6/font-weight)
-      (set-face-attribute 'fixed-pitch nil :font b7r6/font-family :height b7r6/font-height :weight b7r6/font-weight)
-      (set-face-attribute 'fixed-pitch-serif nil :font b7r6/font-family :height b7r6/font-height :weight b7r6/font-weight)
-      (set-face-attribute 'variable-pitch nil :font b7r6/font-family :height b7r6/font-height :weight b7r6/font-weight)
+      (set-face-attribute
+       'default nil
+       :font b7r6/font-family :height b7r6/font-height :weight b7r6/font-weight)
+      (set-face-attribute
+       'fixed-pitch nil
+       :font b7r6/font-family :height b7r6/font-height :weight b7r6/font-weight)
+      (set-face-attribute
+       'fixed-pitch-serif nil
+       :font b7r6/font-family :height b7r6/font-height :weight b7r6/font-weight)
+      (set-face-attribute
+       'variable-pitch nil
+       :font b7r6/font-family :height b7r6/font-height :weight b7r6/font-weight)
 
       ;; start every frame fullscreen
       (add-to-list 'default-frame-alist '(fullscreen)))
@@ -223,9 +232,6 @@
 
   (setq-default visible-bell nil)
   (setq-default ring-bell-function #'ignore)
-
-  ;; TODO(b7r6): there's a bigger story around `jvm` and `android` configuration here...
-  ;; (setenv "JAVA_HOME" "/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home")
   )
 
 ;;
@@ -308,7 +314,8 @@
            (num-windows (length windows)))
       (when (> num-windows 1)
         (dotimes (i num-windows)
-          (set-window-buffer (nth i windows) (nth (mod (+ i 1) num-windows) buffers)))
+          (set-window-buffer
+           (nth i windows) (nth (mod (+ i 1) num-windows) buffers)))
 
         (let ((original-window (get-buffer-window original-buffer t)))
           (when original-window
@@ -376,11 +383,6 @@
    "C-x 2"   'hyper-modern/vsplit
    "C-x 3"   'hyper-modern/hsplit
    "C-x k"   'hyper-modern/kill-current-buffer
-
-   ;; TODO(b7r6): move to specific mode once we're happy...
-   ;; `gptel` bindings
-   "C-c a" 'gptel
-   "C-c s" 'gptel-menu
    ))
 
 ;;
@@ -395,12 +397,7 @@
   :init
   (load-theme 'ono-sendai-hyper-modern :no-confirm)
 
-  :config
-  ;; (mapc
-  ;;  (lambda (face)
-  ;;    (set-face-attribute face nil :weight b7r6/font-weight :family b7r6/font-family))
-  ;;  (face-list))
-  )
+  :config)
 
 ;;
 ;; completion
@@ -464,9 +461,22 @@
   ;; Show search results in a new window
   (setq rg-show-columns t)
 
+  ;; Always search all files in project
+  (setq rg-command-line-flags '("--type=all"))
+
+  (defun my-rg-project-prompt ()
+    (interactive)
+    (let ((current-prefix-arg '(4))) ; Force prompt behavior
+      (call-interactively 'rg-project)))
+
+  ;; Unbind M-N and M-P from rg-mode-map
+  (with-eval-after-load 'rg
+    (define-key rg-mode-map (kbd "M-N") nil)
+    (define-key rg-mode-map (kbd "M-P") nil))
+
   ;; Keybindings
-  :bind (("C-c C-r" . rg)
-         ("C-c s p" . rg-project)
+  :bind (("C-c C-r" . my-rg-project-prompt)
+         ("C-c s p" . my-rg-project-prompt)
          ("C-c s d" . rg-dwim)
          ("C-c s l" . rg-list-searches)))
 
@@ -535,7 +545,8 @@
   (setq doom-modeline-project-detection 'auto)
   (setq doom-modeline-unicode-fallback t)
 
-  :hook (after-init . doom-modeline-mode))
+  :hook (after-init . doom-modeline-mode)
+  )
 
 ;;
 ;; `dashboard.el`
@@ -550,9 +561,11 @@
 (use-package dashboard
   :after (all-the-icons dashboard-hackernews projectile)
 
-  ;; seems like the latest versions do some fuckery with the project list or something.
+  ;; seems like the latest versions do some fuckery with the project list or
+  ;; something.
   ;; Need an extra refresh after initialization for my own settings to show up now.
-  ;; (did not need this before. Would rather keep the :custom block instead of setq spamming)
+  ;; (did not need this before. Would rather keep the :custom block instead
+  ;; of setq spamming)
   :custom
 
   (dashboard-banner-logo-title
@@ -571,10 +584,12 @@
   (dashboard-set-heading-icons nil)
 
 
-  ;; TODO: see if we can activate the footer again in the future
-  ;;       Seems like nil gets sent to the insert function now. Unsure if it happens pre Emacs 29
-  ;;       The first element is an icon, so might be related to the other icon issues.
-  (dashboard-set-footer nil)
+  ;; TODO(b7r6):
+  ;; see if we can activate the footer again in the future
+  ;; Seems like nil gets sent to the insert function now. Unsure
+  ;; if it happens pre Emacs 29
+  ;; The first element is an icon, so might be related to the other icon issues.
+  ;; (dashboard-set-footer nil)
 
   (dashboard-set-file-icons t)
   (dashboard-items '((projects . 5)
@@ -651,7 +666,20 @@
 ;;
 
 (use-package magit
-  :ensure t)
+  :ensure t
+  :config
+  ;; Function to display magit in the rightmost window
+  (defun my-magit-display-buffer-function (buffer)
+    "Display BUFFER in the rightmost window without splitting."
+    (let ((window (if (one-window-p)
+                      (selected-window)
+                    (window-at (- (frame-width) 2) 1))))
+      (select-window window)
+      (set-window-buffer window buffer)
+      window))
+
+  ;; Set magit to use our custom display function
+  (setq magit-display-buffer-function #'my-magit-display-buffer-function))
 
 ;;
 ;; compilation
@@ -768,7 +796,9 @@
    'eglot-server-programs
    '(java-mode . ("java-language-server")))
 
-  :hook (java-mode . (lambda () (setq format-all-formatters '(("Java" (clang-format))))))
+  :hook
+  (java-mode . (lambda () (setq format-all-formatters '(("Java" (clang-format))))))
+
   :mode "\\.java\\'")
 
 ;;
@@ -779,38 +809,6 @@
   :straight (:type built-in)
   :load-path "lib"
   :after emacs)
-
-;; (use-package kotlin-mode
-;;   :after hyper-modern-ktlint-format
-;;   :ensure t
-
-;;   :mode ("\\.kt\\'" . kotlin-mode)
-;;   :mode ("\\.kts?\\'" . kotlin-mode)
-
-;;   :init
-;;   (setq kotlin-mode-indent-offset b7r6/indent-width)
-;;   (setq kotlin-mode-indent-offset b7r6/indent-width)
-;;   (setq kotlin-tab-width b7r6/indent-width)
-;;   (setq kotlin-mode-indent-offset b7r6/indent-width)
-
-;;   :config
-;;   (add-to-list 'eglot-server-programs '(kotlin-mode . ("kotlin-language-server")))
-
-;;   :bind (:map kotlin-mode-map ("M-z" . hyper-modern/ktlint-format-buffer))
-
-;;   :hook (kotlin-mode . eglot-ensure))
-
-;;
-;; `gradle`
-;;
-
-(use-package gradle-mode
-  :ensure t
-  :config
-  (push 'gradle compilation-error-regexp-alist)
-  (push '(gradle "\(file://\)?\([A-Za-z0-9/-]+.[a-z]+\):\([0-9]+\):\([0-9]+\)" 2 3 4)
-        compilation-error-regexp-alist-alist)
-  )
 
 ;;
 ;; `swift` support
@@ -881,16 +879,8 @@
     (interactive)
     (compilation-start "pnpm build" 'compilation-mode))
 
-  :hook
-  (typescript-ts-mode . (lambda () (setq format-all-formatters '(("TypeScript" (prettier))))))
-  (tsx-ts-mode . (lambda () (setq format-all-formatters '(("TSX" (prettier)))))))
-
-;; (use-package javascript-ts-mode
-;;   :after prettier
-;;   :ensure t
-;;   :hook
-;;   (javascript-ts-mode . (lambda () (setq format-all-formatters '(("JavaScript" (prettier))))))
-;;   (jsx-ts-mode . (lambda () (setq format-all-formatters '(("JSX" (prettier)))))))
+  (setq format-all-formatters '(("TypeScript" (prettier))))
+  (setq format-all-formatters '(("TSX" (prettier)))))
 
 ;;
 ;; `haskell-mode`
@@ -904,6 +894,13 @@
 ;;
 
 (use-package ruby-mode
+  :ensure true)
+
+;;
+;; `terraform-mode`
+;;
+
+(use-package terraform-mode
   :ensure true)
 
 ;;
@@ -976,203 +973,29 @@
 (use-package gptel
   :ensure t
   :config
-  (setq gptel-max-tokens (* 8 1024)
-        gptel-response-length (* 4 1024))
+  (setq gptel-max-tokens 200000        ;Maximum input tokens (200K)
+        gptel-response-length 4096)    ;Maximum output tokens (4K)
 
   (setq gptel-backend
-        (gptel-make-openai "deepseek"
+        (gptel-make-anthropic "sonnet-3.7"
           :stream t
-          :models '(deepseek-chat
-                   deepseek-coder
-                   deepseek-reasoner)
-          :host "api.deepseek.com"
-          :endpoint "/chat/completions"
-          :key "sk-be77179fc2e141a98dae94d3ed2aa73d"))
+          :key "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"
+          :models '(claude-3-7-sonnet-20250219)
+          :request-params '(:max_tokens 4096)))
 
-  (gptel-make-anthropic "sonnet"
-    :stream t
-    :key "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"
-    :models '(claude-3-5-sonnet-20241022))
+  (setq gptel-model 'claude-3-7-sonnet-20250219)
+  )
 
-  (gptel-make-gemini "gemini"
-    :stream t
-    :key "AIzaSyD94WNHl0Bd4a8F80g63m4J9rnekBGc8X4"))
+;;
+;; `hyper-modern-ai`
+;;
 
-(defcustom hyper-modern/gptel-buffer-name "*HYPER // MODERN // AI*"
-  "Name of the buffer used for GPTel interactions."
-  :type 'string
-  :group 'hyper-modern)
-
-(defvar hyper-modern/gptel-response-timer nil
-  "Timer for checking GPTel response.")
-
-(defvar hyper-modern/gptel-last-point nil
-  "Last known maximum point in the GPTel buffer.")
-
-(defvar hyper-modern/gptel-stable-count 0
-  "Counter for how many checks the buffer size has remained stable.")
-
-(defvar hyper-modern/gptel-prompts
-  '(("Review" . "As an expert programmer, review the following code. Focus on efficiency, readability, and adherence to best practices. Provide concise, actionable feedback:\n\n")
-    ("Refactor" . "Refactor the following code to improve its structure and efficiency. Maintain its functionality while enhancing readability and performance. Explain your changes:\n\n")
-    ("Optimize" . "Analyze this code for performance bottlenecks and suggest optimizations. Consider time complexity, memory usage, and any language-specific optimizations:\n\n")
-    ("Explain" . "Provide a clear, concise explanation of what this code does. Break down complex parts and highlight any notable patterns or algorithms used:\n\n")
-    ("Debug" . "Examine this code for potential bugs or edge cases. Suggest fixes and explain your reasoning. If you see no bugs, it's fine to just say that.:\n\n")
-    ("Modernize" . "Update this code to use more modern language features and idioms. Explain how these changes improve the code:\n\n")
-    ("Document" . "Generate comprehensive documentation for this code. Include function purposes, parameters, return values, and any important implementation details:\n\n")
-    ("Test" . "Propose a set of unit tests for this code. Cover main functionality, edge cases, and potential failure modes:\n\n")
-    ("Custom" . ""))
-  "Alist of optimized prompts for Sonnet 3.5 interactions.")
-
-
-(defun hyper-modern/get-language-from-mode ()
-  "Get the language name from the current major mode."
-  (let ((mode-name (symbol-name major-mode)))
-    (if (string-match "\\(.*\\)-mode$" mode-name)
-        (match-string 1 mode-name)
-      mode-name)))
-
-(defun hyper-modern/get-region-content ()
-  "Get the content of the selected region."
-  (if (use-region-p)
-      (buffer-substring-no-properties (region-beginning) (region-end))
-    (user-error "No region selected")
-    ))
-
-
-(defun hyper-modern/format-content (content language)
-  "Format CONTENT with language-specific code blocks for LANGUAGE."
-  (format "```%s\n%s\n```" language content))
-
-(defun hyper-modern/get-or-create-gptel-buffer ()
-  "Get or create the GPTel buffer."
-  (or (get-buffer hyper-modern/gptel-buffer-name)
-      (gptel hyper-modern/gptel-buffer-name)))
-
-(defun hyper-modern/post-gptel-response (response-begin response-end)
-  "Function to run after `gptel` response is complete."
-  (let ((gptel-buffer (or (hyper-modern/get-or-create-gptel-buffer)
-                          (user-error "Failed to create or get gptel buffer"))))
-
-    (display-buffer gptel-buffer '(display-buffer-same-window))
-    (when (buffer-local-value 'hyper-modern/gptel-recentering-needed (current-buffer))
-      (goto-char response-end)
-      (recenter -1)
-      (setq-local hyper-modern/gptel-recentering-needed nil))
-    ))
-
-(add-hook 'gptel-post-response-functions #'hyper-modern/post-gptel-response)
-
-(defun hyper-modern/go-to-gptel-buffer ()
-  "Function to run after `gptel` response is complete."
-  (interactive)
-  (let ((gptel-buffer (or (hyper-modern/get-or-create-gptel-buffer)
-                          (user-error "Failed to create or get gptel buffer"))))
-
-    (display-buffer gptel-buffer '(display-buffer-same-window))
-    ))
-
-(defun hyper-modern/gptel-send-region (prompt-key)
-  "Send the selected region to gptel with a specified prompt.
-PROMPT-KEY is a key in `hyper-modern/gptel-prompts'."
-  (interactive
-   (list (completing-read "Choose prompt: "
-                          (mapcar #'car hyper-modern/gptel-prompts))))
-  (unless (boundp 'hyper-modern/gptel-prompts)
-    (user-error "hyper-modern/gptel-prompts is not defined"))
-
-  (unless (region-active-p)
-    (user-error "No active region"))
-
-  (unless (fboundp 'gptel-send)
-    (user-error "gptel is not available"))
-
-  (let* ((region-content (hyper-modern/get-region-content))
-         (language (hyper-modern/get-language-from-mode))
-         (prompt (or (cdr (assoc prompt-key hyper-modern/gptel-prompts))
-                     prompt-key))
-         (formatted-content (hyper-modern/format-content region-content language))
-         (gptel-buffer (or (hyper-modern/get-or-create-gptel-buffer)
-                           (user-error "Failed to create or get gptel buffer")))
-         (full-prompt (concat prompt "\n\n" formatted-content))
-         (original-window (selected-window)))
-
-    ;; (display-buffer gptel-buffer '(display-buffer-same-window))
-    (display-buffer gptel-buffer)
-    (with-current-buffer gptel-buffer
-      (goto-char (point-max))
-      (insert full-prompt)
-      (setq-local hyper-modern/gptel-recentering-needed t)
-      (gptel-send)
-      (goto-char (point-max))
-      ;; (recenter-top-bottom 'center)
-      )
-
-    (message "HYPER // MODERN request sent with prompt: %s" prompt-key)
-    ))
-
-(defun hyper-modern/gptel-send-region-review ()
-  "Send the selected region to gptel for review."
-  (interactive)
-  (hyper-modern/gptel-send-region "Review"))
-
-(defun hyper-modern/gptel-send-region-refactor ()
-  "Send the selected region to gptel for refactoring suggestions."
-  (interactive)
-  (hyper-modern/gptel-send-region "Refactor"))
-
-(defun hyper-modern/gptel-send-region-optimize ()
-  "Send the selected region to gptel for optimization suggestions."
-  (interactive)
-  (hyper-modern/gptel-send-region "Optimize"))
-
-(defun hyper-modern/gptel-send-region-explain ()
-  "Send the selected region to gptel for explanation."
-  (interactive)
-  (hyper-modern/gptel-send-region "Explain"))
-
-(defun hyper-modern/gptel-send-region-debug ()
-  "Send the selected region to gptel for debugging."
-  (interactive)
-  (hyper-modern/gptel-send-region "Debug"))
-
-(defun hyper-modern/gptel-send-region-modernize ()
-  "Send the selected region to gptel for modernization suggestions."
-  (interactive)
-  (hyper-modern/gptel-send-region "Modernize"))
-
-(defun hyper-modern/gptel-send-region-document ()
-  "Send the selected region to gptel for documentation generation."
-  (interactive)
-  (hyper-modern/gptel-send-region "Document"))
-
-(defun hyper-modern/gptel-send-region-test ()
-  "Send the selected region to gptel for test case suggestions."
-  (interactive)
-  (hyper-modern/gptel-send-region "Test"))
-
-(defun hyper-modern/gptel-send-region-custom ()
-  "Send the selected region to gptel with a custom prompt."
-  (interactive)
-  (let ((custom-prompt (read-string "Enter custom prompt: ")))
-    (hyper-modern/gptel-send-region custom-prompt)))
-
-(defvar hyper-modern/ai-interface-keymap
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "w") #'hyper-modern/go-to-gptel-buffer)
-    (define-key map (kbd "r") #'hyper-modern/gptel-send-region-review)
-    (define-key map (kbd "f") #'hyper-modern/gptel-send-region-refactor)
-    (define-key map (kbd "o") #'hyper-modern/gptel-send-region-optimize)
-    (define-key map (kbd "e") #'hyper-modern/gptel-send-region-explain)
-    (define-key map (kbd "d") #'hyper-modern/gptel-send-region-debug)
-    (define-key map (kbd "m") #'hyper-modern/gptel-send-region-modernize)
-    (define-key map (kbd "c") #'hyper-modern/gptel-send-region-document)
-    (define-key map (kbd "t") #'hyper-modern/gptel-send-region-test)
-    (define-key map (kbd "u") #'hyper-modern/gptel-send-region-custom)
-    map)
-  "Keymap for hyper-modern GPTel commands.")
-
-(global-set-key (kbd "C-c c") hyper-modern/ai-interface-keymap)
+(use-package hyper-modern-ai
+  :straight (:type built-in)
+  :load-path "lib"
+  :after gptel
+  :config
+  (global-set-key (kbd "C-c c") hyper-modern-ai/keymap))
 
 ;;
 ;; `tree-sitter` grammar configuration
@@ -1187,15 +1010,21 @@ PROMPT-KEY is a key in `hyper-modern/gptel-prompts'."
    (elisp "https://github.com/Wilfred/tree-sitter-elisp")
    (go "https://github.com/tree-sitter/tree-sitter-go")
    (html "https://github.com/tree-sitter/tree-sitter-html")
-   (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+   (javascript
+    "https://github.com/tree-sitter/tree-sitter-javascript"
+    "master" "src")
    (json "https://github.com/tree-sitter/tree-sitter-json")
    (make "https://github.com/alemuller/tree-sitter-make")
    (markdown "https://github.com/ikatyang/tree-sitter-markdown")
    (python "https://github.com/tree-sitter/tree-sitter-python")
    (ruby "https://github.com/tree-sitter/tree-sitter-ruby")
    (toml "https://github.com/tree-sitter/tree-sitter-toml")
-   (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
-   (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+   (tsx
+    "https://github.com/tree-sitter/tree-sitter-typescript"
+    "master" "tsx/src")
+   (typescript
+    "https://github.com/tree-sitter/tree-sitter-typescript"
+    "master" "typescript/src")
    (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
 
 (defun ensure-treesit-languages ()
@@ -1209,29 +1038,24 @@ PROMPT-KEY is a key in `hyper-modern/gptel-prompts'."
 (when (treesit-available-p)
   (ensure-treesit-languages))
 
-;;
-;; `svg-tag-mode`
-;;
+(defun sync-kill-to-tmux-clipboard (str &rest _)
+  "Sync the text added to the kill ring to tmux clipboard."
+  (when (and str (getenv "TMUX") (executable-find "tmux"))
+    (let ((process-connection-type nil)
+          (proc (start-process "tmux-clipboard" nil "tmux" "set-buffer" str)))
+      ;; Process sentinel to handle any errors
+      (set-process-sentinel
+       proc
+       (lambda (proc _)
+         (when (not (= (process-exit-status proc) 0))
+           (message "Warning: Failed to sync to tmux clipboard")))))))
 
-;;
-;; TODO(b7r6): get this working again...
-;;
-;; (use-package svg-tag-mode
-;;   :ensure t
-;;   :init  ; Use :init instead of :config to ensure it runs at startup
-;;   (setq svg-tag-tags
-;;         '(("TODO(b7r6):" .
-;;            ((lambda (tag)
-;;               (svg-tag-make "TODO" :inverse t :radius 0 :face 'font-lock-comment-face))))))
-;;   :config
-;;   (svg-tag-mode 1))  ; Enable the mode at startup
+;; Add our function as advice to kill-new
+(advice-add 'kill-new :after #'sync-kill-to-tmux-clipboard)
 
-;; TODO(b7r6): debug this...
-;;
-;; (use-package current-window-only
-;;   :straight (current-window-only
-;;              :type git
-;;              :host github
-;;              :repo "FrostyX/current-window-only")
-;;   :config
-;;   (current-window-only-mode))
+;; If you ever need to disable it:
+;; (advice-remove 'kill-new #'sync-kill-to-tmux-clipboard)
+
+
+;; TODO(b7r6): fix it...
+(smart-split)
