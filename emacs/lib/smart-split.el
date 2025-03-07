@@ -8,7 +8,7 @@
   :group 'convenience
   :version "1.0.0")
 
-(defcustom smart-split-columns 80
+(defcustom smart-split-columns 100
   "Minimum Columns per Split"
   :type 'number
   :group 'lusty-explorer)

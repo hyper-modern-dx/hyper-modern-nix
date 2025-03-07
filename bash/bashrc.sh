@@ -104,6 +104,7 @@ unset -f init_optional_tools setup_homebrew
 
 
 . "$HOME/.atuin/bin/env"
+. "$HOME/.cargo/env"
 
 [[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
 eval "$(atuin init bash)"
@@ -111,3 +112,11 @@ eval "$(atuin init bash)"
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+. "$HOME/.cargo/env"
+
+# Added by `rbenv init` on Mon Feb 24 10:55:08 AST 2025
+eval "$(rbenv init - --no-rehash bash)"
+
+export TAILSCALE_API_KEY="tskey-auth-ktTDasubXh11CNTRL-mfYvGGJ8zECR5Df2sXwSECBmwU92oEwqZ"
+export TF_VAR_tailscale_tailnet=parabolic-surf.org.github

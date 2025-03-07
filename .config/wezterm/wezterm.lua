@@ -34,4 +34,5 @@ return {
   -- use_dead_keys = false,
 
   color_scheme = "ono-sendai-hyper-modern",
+  window_decorations = "RESIZE",
 }

@@ -240,7 +240,15 @@
 
 (use-package vterm
   :ensure t
-  :hook (vterm-mode . (lambda () (setq-local global-hl-line-mode nil))))
+  :hook (vterm-mode . (lambda () (setq-local global-hl-line-mode nil)))
+  :config
+  (setq vterm-keymap-exceptions '("M-/" "M-N" "M-P" "M-i" "M-z"))
+
+  ;; Set up keybindings after vterm is fully loaded
+  (with-eval-after-load 'vterm
+    (define-key vterm-mode-map (kbd "M-N") 'windmove-right)
+    (define-key vterm-mode-map (kbd "M-P") 'windmove-left)
+    ))
 
 ;;
 ;; `smart-split`
@@ -709,7 +717,8 @@
 (use-package nix-mode
   :after nixpkgs-fmt
   :ensure t
-  )
+  :bind (:map nix-mode-map
+              ("M-z" . nixpkgs-fmt-buffer)))
 
 ;;
 ;; `bazel` support
@@ -888,6 +897,27 @@
 
 (use-package haskell-mode
   :ensure true)
+
+;;
+;; `fsharp-mode`
+;;
+
+(use-package fsharp-mode
+  :defer t
+  :ensure t
+  :config
+  (setq fsharp-indent-offset 2)
+  (defun fsharp-indent-buffer ()
+    "Indent the entire buffer using fsharp-mode indentation."
+    (interactive)
+    (save-excursion
+      (mark-whole-buffer)
+      (call-interactively 'fsharp-indent-region)
+      (deactivate-mark)
+      ))
+
+  :bind (:map fsharp-mode-map ("M-z" . fsharp-indent-buffer))
+  )
 
 ;;
 ;; `ruby-mode`
