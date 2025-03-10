@@ -899,6 +899,20 @@
   :ensure true)
 
 ;;
+;; `zig-mode`
+;;
+
+(use-package zig-mode
+  :ensure true)
+
+;;
+;; `just-mode`
+;;
+
+(use-package just-mode
+  :ensure true)
+
+;;
 ;; `fsharp-mode`
 ;;
 
