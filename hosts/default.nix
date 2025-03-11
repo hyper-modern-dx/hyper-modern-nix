@@ -26,7 +26,7 @@
           users = {
             # Apply both user configurations
             b7r6 = { ... }: { imports = [ ../modules/common/users/b7r6 ]; };
-            maskirov = { ... }: { imports = [ ../modules/common/users/maskirov ]; };
+            # maskirov = { ... }: { imports = [ ../modules/common/users/maskirov ]; };
           };
         };
       }

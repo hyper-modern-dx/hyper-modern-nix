@@ -3,7 +3,10 @@
 , pkgs
 , ...
 }:
-
+let
+  # Access Stylix colors
+  colors = config.lib.stylix.colors.withHashtag;
+in
 {
   # Shared CLI tooling configuration across all users and systems
   # This provides a baseline of command-line tools and their configurations
@@ -19,21 +22,11 @@
   programs.bash = {
     enable = true;
     shellAliases = {
-      # File operations
-      ll = "ls -la";
-      l = "ls -l";
+      "z" = "zoxide";
 
       # System operations
       update = "sudo nixos-rebuild switch";
       update-flake = "nix flake update && sudo nixos-rebuild switch";
-
-      # Git shortcuts
-      gs = "git status";
-      gd = "git diff";
-      gl = "git log --oneline --graph --decorate --all -n 10";
-
-      # Development
-      py = "python3";
     };
 
     historyControl = [ "ignoredups" "erasedups" ];
@@ -44,32 +37,21 @@
       EDITOR = "nvim";
     };
 
-    # Helper function for uv environment activation
     initExtra = ''
-      # Use colored output by default
-      alias grep='grep --color=auto'
-      alias diff='diff --color=auto'
-      alias ip='ip -color=auto'
     '';
   };
 
   # Tmux configuration
   programs.tmux = {
     enable = true;
-    prefix = "C-a";
-    terminal = "tmux-256color";
+    prefix = "C-o";
+    terminal = "xterm-direct";
     escapeTime = 10;
     historyLimit = 10000;
     keyMode = "vi";
     baseIndex = 1;
     mouse = true;
     extraConfig = ''
-      # True color settings
-      set -ag terminal-overrides ",*256col*:RGB"
-      set -ag terminal-overrides ",alacritty:RGB"
-      set -ag terminal-overrides ",wezterm:RGB"
-      set -ag terminal-overrides ",ghostty:RGB"
-      
       # Reload configuration
       bind r source-file ~/.config/tmux/tmux.conf \; display "Reloaded!"
       
@@ -84,6 +66,26 @@
       bind -n S-Right next-window
     '';
   };
+
+  # Emacs configuration
+  programs.emacs = {
+    enable = true;
+    package = pkgs.emacs30-nox;
+
+    # Install necessary packages
+    extraPackages = epkgs: [
+      epkgs.base16-theme
+      epkgs.vterm
+      epkgs.magit
+    ];
+
+    # Comprehensive configuration to fix color issues
+    extraConfig = ''
+    '';
+  };
+
+  # Enable Stylix integration for Emacs
+  stylix.targets.emacs.enable = true;
 
   # Neovim configuration
   programs.neovim = {
@@ -103,37 +105,6 @@
       cmp-path
     ];
     extraLuaConfig = ''
-      -- Basic settings
-      vim.opt.number = true
-      vim.opt.relativenumber = true
-      vim.opt.shiftwidth = 2
-      vim.opt.tabstop = 2
-      vim.opt.expandtab = true
-      vim.opt.termguicolors = true
-      vim.opt.ignorecase = true
-      vim.opt.smartcase = true
-      
-      -- LSP Configuration
-      local lspconfig = require('lspconfig')
-      
-      -- Nix
-      lspconfig.nixd.setup{}
-      
-      -- Python
-      -- lspconfig.pyright.setup{}
-      
-      -- Treesitter
-      require('nvim-treesitter.configs').setup {
-        ensure_installed = { "lua", "vim", "vimdoc", "python", "nix", "bash" },
-        highlight = { enable = true },
-      }
-      
-      -- Keymaps
-      vim.g.mapleader = " "
-      vim.keymap.set('n', '<leader>ff', require('telescope.builtin').find_files, { desc = 'Find Files' })
-      vim.keymap.set('n', '<leader>fg', require('telescope.builtin').live_grep, { desc = 'Find Text' })
-      vim.keymap.set('n', '<leader>fb', require('telescope.builtin').buffers, { desc = 'Find Buffers' })
-      vim.keymap.set('n', '<leader>fh', require('telescope.builtin').help_tags, { desc = 'Find Help' })
     '';
   };
 
@@ -164,6 +135,39 @@
   programs.starship = {
     enable = true;
     enableBashIntegration = true;
+
+    settings = {
+      format = "[//](fg:${colors.base03})$hostname$git_branch$directory[//](fg:${colors.base03})\n$character";
+
+      hostname = {
+        format = " [$hostname]($style) ";
+        style = "${colors.base0E}"; # Magenta from base16
+        ssh_only = false;
+        disabled = false;
+      };
+
+      directory = {
+        format = "[$path]($style) ";
+        style = "${colors.base0D}"; # Blue from base16
+        truncate_to_repo = true;
+      };
+
+      git_branch = {
+        format = "[$branch]($style) ";
+        style = "fg:${colors.base09}"; # Orange from base16
+      };
+
+      character = {
+        format = "[//](fg:${colors.base03}) ";
+        success_symbol = "[//](fg:${colors.base03})";
+        error_symbol = "[//](fg:${colors.base08})"; # Red from base16
+        disabled = false;
+      };
+
+      # Global settings
+      scan_timeout = 10;
+      add_newline = false;
+    };
   };
 
   # Fuzzy finder
@@ -188,7 +192,6 @@
     btop
     duf
     dust
-    emacs
     fd
     gcc
     glow
