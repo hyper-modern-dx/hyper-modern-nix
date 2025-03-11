@@ -58,16 +58,15 @@ in
       };
     };
 
-    # Terminal-specific configurations
+    # Enable only supported targets
     targets = {
-      # Enable true color support but maintain ANSI compatibility
+      # Terminal configuration
       tmux.enable = true;
       tmux.extraConfig = ''
         # Enable 24-bit color support
         set -g default-terminal "tmux-256color"
         set -ag terminal-overrides ",xterm-256color:RGB"
         set -ag terminal-overrides ",*256col*:RGB"
-        set -ag terminal-overrides ",alacritty:RGB"
         set -ag terminal-overrides ",wezterm:RGB"
         set -ag terminal-overrides ",ghostty:RGB"
 
@@ -76,30 +75,12 @@ in
         set -g focus-events on
       '';
 
-      # Wezterm configuration
-      wezterm.enable = true;
-      wezterm.extraConfig = ''
-        return {
-          -- Ensure color compatibility
-          enable_wayland = false,
-          front_end = "WebGpu",
-          webgpu_power_preference = "HighPerformance",
-          
-          -- Disable features that might cause compatibility issues
-          enable_kitty_keyboard = false,
-          
-          -- Set fallback for environments without true-color
-          force_reverse_video_cursor = true,
-        }
-      '';
-
-      # Ensure Emacs theme compatibility
+      # Ensure Emacs and Vim theme compatibility
       emacs.enable = true;
       vim.enable = true;
-
-      # Disable targets that aren't used to avoid configuration conflicts
-      alacritty.enable = false;
-      kitty.enable = false;
+      
+      # WezTerm is included in stylix's targets
+      wezterm.enable = true;
     };
 
     # Cursor size and animation options (conservative defaults)
