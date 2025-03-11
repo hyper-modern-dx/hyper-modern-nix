@@ -82,6 +82,9 @@
             nixd
           ];
         };
+
+        # Make system available to modules that need it
+        _module.args.currentSystem = system;
       };
     };
 }

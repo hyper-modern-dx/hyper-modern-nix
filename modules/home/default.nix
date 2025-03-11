@@ -1,41 +1,41 @@
-{ config
-, inputs
-, ...
-}: {
-  flake.homeConfigurations = {
-    # Watchtower - Linux configuration with correct architecture
-    "b7r6@watchtower" = inputs.home-manager.lib.homeManagerConfiguration {
+{ config, inputs, ... }:
+let
+  mkHomeConfig =
+    { username
+    , hostname
+    , system
+    , platformType ? if builtins.match ".*darwin" system != null then "darwin" else "linux"
+    }:
+    inputs.home-manager.lib.homeManagerConfiguration {
       pkgs = import inputs.nixpkgs {
-        system = "aarch64-linux"; # Changed to match your actual system
+        inherit system;
         config.allowUnfree = true;
       };
 
       extraSpecialArgs = {
         inherit inputs;
-        currentSystem = "linux";
+        currentSystem = platformType;
       };
 
       modules = [
-        # Core modules
-        ../common
+        ../common/users/${username}
         ../stylix
         inputs.stylix.homeManagerModules.stylix
-
-        # Home Manager configuration
-        {
-          _module.args = {
-            isDarwin = false;
-            isLinux = true;
-          };
-
-          # Basic home configuration for Linux
-          home = {
-            username = "b7r6";
-            homeDirectory = "/home/b7r6";
-            stateVersion = "24.11";
-          };
-        }
       ];
+    };
+in
+{
+  flake.homeConfigurations = {
+    "b7r6@watchtower" = mkHomeConfig {
+      username = "b7r6";
+      hostname = "watchtower";
+      system = "aarch64-linux";
+    };
+
+    "b7r6@macbook" = mkHomeConfig {
+      username = "b7r6";
+      hostname = "macbook";
+      system = "aarch64-darwin";
     };
   };
 }
