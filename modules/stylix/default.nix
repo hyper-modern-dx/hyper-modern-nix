@@ -38,11 +38,12 @@ let
   };
 in
 {
+  # Super minimal version to fix build errors
   stylix = {
     # Use our custom color scheme
     base16Scheme = scheme;
 
-    # Set default fonts (system-ui provides good cross-platform compatibility)
+    # Set default fonts 
     fonts = {
       monospace = {
         name = "JetBrains Mono";
@@ -58,40 +59,7 @@ in
       };
     };
 
-    # Configure supported Stylix targets
-    
-    # Tmux configuration
-    tmux.enable = true;
-    tmux.extraConfig = ''
-      # Enable 24-bit color support
-      set -g default-terminal "tmux-256color"
-      set -ag terminal-overrides ",xterm-256color:RGB" 
-      set -ag terminal-overrides ",*256col*:RGB"
-      set -ag terminal-overrides ",wezterm:RGB"
-      set -ag terminal-overrides ",ghostty:RGB"
-
-      # Ensure consistent behavior with different terminals
-      set -g escape-time 10
-      set -g focus-events on
-    '';
-
-    # Text editor configuration
-    vim.enable = true;
-    
-    # Emacs and WezTerm are configured directly (not under targets)
-    emacs.enable = true;
-    wezterm.enable = true;
-
-    # Cursor size and animation options (conservative defaults)
-    cursor = {
-      size = 16;
-      package = pkgs.vanilla-dmz;
-      name = "Vanilla-DMZ";
-    };
-
-    # Opacity settings (1.0 = fully opaque)
-    opacity.terminal = 1.0;
-    opacity.desktop = 1.0;
-    opacity.applications = 1.0;
+    # Disable anything complex until we can determine what's supported
+    polarity = "dark";
   };
 }
