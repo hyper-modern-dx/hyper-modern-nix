@@ -50,6 +50,7 @@
   - Common CLI tools in `modules/common/cli`
   - User defaults in `modules/common/users/default`
   - User-specific configs in `modules/common/users/{username}`
+  - System users defined in `hosts/nixos-common.nix`
 - Default tools include:
   - wezterm/ghostty for terminal
   - neovim with LSP support
@@ -61,14 +62,24 @@
 - `modules/` - Shared configuration modules
   - `modules/common/` - Cross-platform shared settings
     - `modules/common/cli/` - Common command-line tools
-    - `modules/common/users/` - User-specific configurations
-    - `modules/common/stylix.nix` - Theming configuration
-  - `modules/nixos/` - NixOS-specific modules
-  - `modules/darwin/` - macOS-specific modules
+    - `modules/common/users/` - Home Manager user configurations
+  - `modules/nixos/` - NixOS-specific flake outputs
+  - `modules/darwin/` - macOS-specific flake outputs
+  - `modules/stylix/` - Theme configuration (imported by hosts)
   - `modules/home/` - Home-manager specific modules
 - `hosts/` - Host-specific configurations
+  - `hosts/nixos-common.nix` - Shared NixOS settings (users, sudo, etc)
+  - `hosts/default.nix` - Host definitions
   - `hosts/watchtower/` - Example aarch64-linux VM
 - `legacy/` - Reference configurations from previous setup
+
+## Flake Structure Notes
+- System-specific settings (users.users, security.sudo) belong in hosts/nixos-common.nix
+- User configurations for Home Manager are in modules/common/users/*
+- Stylix theme is a standalone module imported by host configurations
+- modules/nixos/default.nix only defines flake outputs
+- Each module should only define options valid in its context
+- System modules should be directly imported by hosts, not via flake-parts
 
 ## Code Style
 - **Indentation**: 2 spaces

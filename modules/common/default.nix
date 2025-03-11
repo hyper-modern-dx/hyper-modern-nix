@@ -8,7 +8,6 @@
 
 {
   imports = [
-    ./stylix.nix
     ./users
   ];
 }

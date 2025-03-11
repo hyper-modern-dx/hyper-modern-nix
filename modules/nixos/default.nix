@@ -1,11 +1,12 @@
 {
-  config,
   inputs,
   ...
 }: {
-  # Common NixOS module configurations
-  # These apply to all NixOS machines
-  
-  # Import host-specific configurations from the hosts directory
+  # Create NixOS modules that will be available to hosts
+  flake.nixosModules = {
+    # Add any reusable NixOS modules here
+  };
+
+  # Define the flake output for NixOS configurations
   flake.nixosConfigurations = import ../../hosts { inherit inputs; };
 }

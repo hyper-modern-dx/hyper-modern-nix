@@ -2,14 +2,12 @@
   config, 
   pkgs,
   inputs,
-  userConfigurations,
   ...
 }:
 
 {
   imports = [ 
     ./hardware-configuration.nix
-    ../../modules/common # Import common modules including stylix and users
   ];
 
   # Create shared directory mount point
@@ -66,18 +64,15 @@
   # Package management
   nixpkgs.config.allowUnfree = true;
   
-  # Development tools and utilities
+  # Host-specific tools and utilities
   environment.systemPackages = with pkgs; [
-    # System utilities
-    htop
+    # System monitoring
     btop
     iotop
-    dnsutils
-    lsof
     
     # QEMU/UTM utilities
     spice-vdagent
-    xdg-user-dirs  # For managing standard user directories
+    xdg-user-dirs
   ];
 
   # Docker support
