@@ -17,10 +17,26 @@
         home-manager = {
           useGlobalPkgs = true;
           useUserPackages = true;
-          users = {
-            # Apply both user configurations
-            b7r6 = { ... }: { imports = [ ../modules/common/users/b7r6 ]; };
-            # maskirov = { ... }: { imports = [ ../modules/common/users/maskirov ]; };
+
+          extraSpecialArgs = {
+            inherit inputs;
+            currentSystem = "linux";
+            isDarwin = false;
+            isLinux = true;
+          };
+
+          users.b7r6 = { ... }: {
+            imports = [
+              ../modules/common/cli
+              ../modules/stylix
+            ];
+
+            # Basic home configuration for Linux
+            home = {
+              username = "b7r6";
+              homeDirectory = "/home/b7r6";
+              stateVersion = "24.11";
+            };
           };
         };
       }

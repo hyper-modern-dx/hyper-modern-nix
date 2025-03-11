@@ -54,22 +54,7 @@
         ./modules/common
       ];
 
-      flake = {
-        # NixOS configurations
-        nixosConfigurations = {
-          # Add your NixOS hosts here
-          # example = lib.nixosSystem { ... };
-        };
-
-        # Darwin configurations
-        darwinConfigurations = {
-          # Add your Darwin hosts here
-          # example-mac = lib.darwinSystem { ... };
-        };
-      };
-
       perSystem = { config, self', pkgs, lib, system, ... }: {
-        # Per-system attributes
         treefmt.config = {
           projectRootFile = "flake.nix";
           programs = {

@@ -4,7 +4,6 @@
 , inputs
 , ...
 }:
-
 {
   imports = [
     ./users
