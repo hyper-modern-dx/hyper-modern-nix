@@ -1,12 +1,10 @@
-{
-  config,
-  lib,
-  pkgs,
-  inputs,
-  ...
+{ config
+, lib
+, pkgs
+, inputs
+, ...
 }:
 let
-  # Define colors (based on your Ono-Sendai theme)
   colors = {
     # Base colors
     base00 = "101216"; # Dark background
@@ -31,7 +29,7 @@ let
 
   # Create the Stylix scheme from our colors
   scheme = {
-    slug = "ono-sendai-hyper-modern";
+    slug = "ono-sendai";
     name = "Ono-Sendai Hyper Modern";
     author = "b7r6";
     inherit colors;
@@ -76,21 +74,14 @@ in
         set -g focus-events on
       '';
 
-      # Wezterm configuration
+      # `ghostty`
+      ghostty.enable = true;
+      ghostty.extraConfig = ''
+      '';
+
+      # wezterm
       wezterm.enable = true;
       wezterm.extraConfig = ''
-        return {
-          -- Ensure color compatibility
-          enable_wayland = false,
-          front_end = "WebGpu",
-          webgpu_power_preference = "HighPerformance",
-          
-          -- Disable features that might cause compatibility issues
-          enable_kitty_keyboard = false,
-          
-          -- Set fallback for environments without true-color
-          force_reverse_video_cursor = true,
-        }
       '';
 
       # Ensure Emacs theme compatibility

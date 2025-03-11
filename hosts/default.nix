@@ -7,17 +7,17 @@
     modules = [
       # Common NixOS configuration
       ./nixos-common.nix
-      
+
       # Host-specific configuration
       ./watchtower/configuration.nix
-      
+
       # Styling
       ../modules/stylix
-      
+
       # External modules
       inputs.home-manager.nixosModules.home-manager
       inputs.stylix.nixosModules.stylix
-      
+
       # Home Manager configuration
       {
         home-manager = {
@@ -31,6 +31,7 @@
         };
       }
     ];
+
     specialArgs = { inherit inputs; };
   };
 

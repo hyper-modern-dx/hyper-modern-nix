@@ -1,9 +1,8 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: 
+{ config
+, lib
+, pkgs
+, ...
+}:
 
 {
   # Shared CLI tooling configuration across all users and systems
@@ -15,7 +14,7 @@
     extraConfig = ''
     '';
   };
-  
+
   # Shell configuration
   programs.bash = {
     enable = true;
@@ -23,30 +22,30 @@
       # File operations
       ll = "ls -la";
       l = "ls -l";
-      
+
       # System operations
       update = "sudo nixos-rebuild switch";
       update-flake = "nix flake update && sudo nixos-rebuild switch";
-      
+
       # Git shortcuts
       gs = "git status";
       gd = "git diff";
       gl = "git log --oneline --graph --decorate --all -n 10";
-      
+
       # Development
       py = "python3";
     };
-    
+
+    historyControl = [ "ignoredups" "erasedups" ];
+    historyFileSize = 10000;
+    historySize = 10000;
+
+    sessionVariables = {
+      EDITOR = "nvim";
+    };
+
     # Helper function for uv environment activation
     initExtra = ''
-      # Better history management
-      export HISTSIZE=10000
-      export HISTFILESIZE=10000
-      export HISTCONTROL=ignoredups:erasedups
-      
-      # Default editor
-      export EDITOR=nvim
-      
       # Use colored output by default
       alias grep='grep --color=auto'
       alias diff='diff --color=auto'
@@ -57,19 +56,14 @@
   # Tmux configuration
   programs.tmux = {
     enable = true;
-    shortcut = "a";
+    prefix = "C-a";
     terminal = "tmux-256color";
     escapeTime = 10;
     historyLimit = 10000;
     keyMode = "vi";
+    baseIndex = 1;
+    mouse = true;
     extraConfig = ''
-      # Enable mouse support
-      set -g mouse on
-      
-      # Start window numbering at 1
-      set -g base-index 1
-      set -g pane-base-index 1
-      
       # True color settings
       set -ag terminal-overrides ",*256col*:RGB"
       set -ag terminal-overrides ",alacritty:RGB"
@@ -150,34 +144,65 @@
       init.defaultBranch = "main";
       pull.rebase = true;
       push.default = "current";
-      core.editor = "nvim";
       color.ui = "auto";
     };
     # User identity must be specified by user-specific configuration
   };
 
-  # Common command-line utilities
+  # File listing utilities
+  programs.eza = {
+    enable = true;
+  };
+
+  # Fast directory navigation
+  programs.zoxide = {
+    enable = true;
+    enableBashIntegration = true;
+  };
+
+  # Starship prompt
+  programs.starship = {
+    enable = true;
+    enableBashIntegration = true;
+  };
+
+  # Fuzzy finder
+  programs.fzf = {
+    enable = true;
+    enableBashIntegration = true;
+  };
+
+  # Modern alternative to cat
+  programs.bat = {
+    enable = true;
+  };
+
+  # McFly history search tool
+  programs.mcfly = {
+    enable = true;
+    enableBashIntegration = true;
+  };
+
+  # Common command-line utilities (removing duplicates and using programs options where available)
   home.packages = with pkgs; [
-    bat             # Better cat
-    eza             # Better ls 
-    fd              # Better find
-    ripgrep         # Better grep
-    fzf             # Fuzzy finder
-    jq              # JSON processor
-    htop            # Process viewer
-    btop            # Process viewer
-    
-    # Development tools
-    gnumake
+    btop
+    duf
+    dust
+    emacs
+    fd
     gcc
-    
-    # Python development
-    uv              # Modern Python package manager
-    ruff            # Python linter and formatter
-    # nodePackages.pyright # Python language server
-    
-    # Nix development
-    nixd            # Nix language server
-    nixpkgs-fmt     # Nix formatter
+    glow
+    gnumake
+    htop
+    jq
+    nixd
+    nixpkgs-fmt
+    ripgrep
+    ruff
+    shfmt
+    tmux
+    uv
+    viddy
+    vivid
   ];
 }
