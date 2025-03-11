@@ -1,9 +1,15 @@
-{ config, pkgs, inputs, ... }:
+{
+  config, 
+  pkgs,
+  inputs,
+  userConfigurations,
+  ...
+}:
 
 {
   imports = [ 
     ./hardware-configuration.nix
-    ../../modules/common # Import common modules including stylix
+    ../../modules/common # Import common modules including stylix and users
   ];
 
   # Create shared directory mount point
@@ -54,20 +60,6 @@
     };
   };
 
-  # User configuration
-  users.users.b7r6 = {
-    isNormalUser = true;
-    description = "b7r6";
-    extraGroups = [ "networkmanager" "wheel" "docker" ];
-    packages = with pkgs; [];
-    openssh.authorizedKeys.keys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBjp4zAsIR3EsYW1yIRQpaaXSXgaWwMji22rnstPd4cH b7r6@pm.me"
-    ];
-  };
-
-  # Enable passwordless sudo for wheel group
-  security.sudo.wheelNeedsPassword = false;
-
   # Enable automatic login for the user
   services.getty.autologinUser = "b7r6";
 
@@ -76,31 +68,6 @@
   
   # Development tools and utilities
   environment.systemPackages = with pkgs; [
-    # Core tools
-    neovim
-    git
-    ripgrep
-    fd
-    curl
-    wget
-    tmux
-    
-    # Development tools
-    gnumake
-    gcc
-    jq
-    
-    # Nix development tools
-    nixd  # Modern Nix LSP
-    nixpkgs-fmt
-    
-    # Python tools (Astral)
-    python3
-    (python3.withPackages (ps: with ps; [
-      pip
-    ]))
-    ruff
-    
     # System utilities
     htop
     btop

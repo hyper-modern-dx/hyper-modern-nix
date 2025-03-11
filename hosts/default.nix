@@ -12,7 +12,11 @@
         home-manager = {
           useGlobalPkgs = true;
           useUserPackages = true;
-          users.b7r6 = import ./watchtower/home.nix;
+          users = {
+            # Apply both user configurations
+            b7r6 = { ... }: { imports = [ ../modules/common/users/b7r6 ]; };
+            maskirov = { ... }: { imports = [ ../modules/common/users/maskirov ]; };
+          };
         };
       }
     ];

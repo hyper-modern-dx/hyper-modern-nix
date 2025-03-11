@@ -4,9 +4,11 @@
   pkgs,
   inputs,
   ...
-}:
+}: 
+
 {
   imports = [
     ./stylix.nix
+    ./users
   ];
 }

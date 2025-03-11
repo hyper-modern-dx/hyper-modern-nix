@@ -43,10 +43,26 @@
   - Default fonts: JetBrains Mono, Inter
   - No transparency (opacity: 1.0)
 
+## User Management
+- Structured as multi-user from the start
+- Core users: `b7r6` and `maskirov`
+- Modular approach:
+  - Common CLI tools in `modules/common/cli`
+  - User defaults in `modules/common/users/default`
+  - User-specific configs in `modules/common/users/{username}`
+- Default tools include:
+  - wezterm/ghostty for terminal
+  - neovim with LSP support
+  - uv/ruff for Python development
+  - tmux configured for modern terminals
+
 ## Repository Structure
 - `flake.nix` - Main configuration entrypoint
 - `modules/` - Shared configuration modules
   - `modules/common/` - Cross-platform shared settings
+    - `modules/common/cli/` - Common command-line tools
+    - `modules/common/users/` - User-specific configurations
+    - `modules/common/stylix.nix` - Theming configuration
   - `modules/nixos/` - NixOS-specific modules
   - `modules/darwin/` - macOS-specific modules
   - `modules/home/` - Home-manager specific modules
@@ -69,6 +85,7 @@
 
 ## Key Features
 - Multi-platform support (x86_64/aarch64, Linux/Darwin)
+- Multi-user support with shared baseline configuration
 - Home Manager integration with declarative package management
 - Emacs setup with format-all-mode and AI assistance
 - Modern terminal integration via ghostty/wezterm
