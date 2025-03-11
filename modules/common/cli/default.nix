@@ -38,6 +38,9 @@ in
     };
 
     initExtra = ''
+      export TERM=xterm-256color
+      export COLORTERM=truecolor
+      export COLORFGBG="15;0"
     '';
   };
 
@@ -45,13 +48,22 @@ in
   programs.tmux = {
     enable = true;
     prefix = "C-o";
-    terminal = "xterm-direct";
+    terminal = "tmux-256color";
     escapeTime = 10;
     historyLimit = 10000;
     keyMode = "vi";
     baseIndex = 1;
     mouse = true;
     extraConfig = ''
+      # Use a well-supported terminal type
+      set -g default-terminal "tmux-256color"
+      
+      # Enable true color support for both terminals without changing terminal type
+      set -ga terminal-overrides ",xterm-256color:RGB"
+      set -ga terminal-overrides ",alacritty:RGB"
+      set -ga terminal-overrides ",wezterm:RGB"
+      set -ga terminal-overrides ",ghostty:RGB"
+      
       # Reload configuration
       bind r source-file ~/.config/tmux/tmux.conf \; display "Reloaded!"
       
@@ -111,12 +123,35 @@ in
   # Git configuration
   programs.git = {
     enable = true;
+
     extraConfig = {
+      branch.sort = "-committerdate";
+      color.ui = "auto";
+      column.ui = "auto";
+      commit.verbose = true;
+      help.autocorrect = "prompt";
       init.defaultBranch = "main";
       pull.rebase = true;
-      push.default = "current";
-      color.ui = "auto";
+      tag.sort = "version:refname";
+
+      fetch = {
+        prune = true;
+        pruneTags = true;
+      };
+
+      push = {
+        default = "simple";
+        autoSetupRemote = true;
+        followTags = true;
+      };
+
+      rebase = {
+        autoSquash = true;
+        autoStash = true;
+        updateRefs = true;
+      };
     };
+
     # User identity must be specified by user-specific configuration
   };
 

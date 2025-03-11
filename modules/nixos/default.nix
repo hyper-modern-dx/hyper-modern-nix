@@ -1,6 +1,5 @@
-{
-  inputs,
-  ...
+{ inputs
+, ...
 }: {
   # Create NixOS modules that will be available to hosts
   flake.nixosModules = {

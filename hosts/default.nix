@@ -1,17 +1,11 @@
 { inputs, ... }:
-
 {
   # aarch64-linux hosts
   watchtower = inputs.nixpkgs.lib.nixosSystem {
     system = "aarch64-linux";
     modules = [
-      # Common NixOS configuration
       ./nixos-common.nix
-
-      # Host-specific configuration
       ./watchtower/configuration.nix
-
-      # Styling
       ../modules/stylix
 
       # External modules
@@ -34,10 +28,4 @@
 
     specialArgs = { inherit inputs; };
   };
-
-  # Add more hosts here as needed
-  # example-x86 = inputs.nixpkgs.lib.nixosSystem { 
-  #   system = "x86_64-linux";
-  #   ...
-  # };
 }
