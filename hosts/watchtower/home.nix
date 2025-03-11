@@ -8,33 +8,6 @@
   home.username = "b7r6";
   home.homeDirectory = "/home/b7r6";
 
-  # Terminal
-  programs.wezterm = {
-    enable = true;
-    extraConfig = ''
-      return {
-        -- Enable GPU acceleration
-        front_end = "WebGpu",
-        webgpu_power_preference = "HighPerformance",
-        
-        -- Disable features that might cause compatibility issues
-        enable_kitty_keyboard = false,
-        
-        -- Use a larger scrollback
-        scrollback_lines = 10000,
-        
-        -- Configure misc UI settings
-        window_close_confirmation = "NeverPrompt",
-        window_padding = {
-          left = 2,
-          right = 2,
-          top = 2,
-          bottom = 2,
-        },
-      }
-    '';
-  };
-  
   # Shell configuration
   programs.bash = {
     enable = true;
@@ -160,22 +133,16 @@
 
   # Python development environment with uv
   home.packages = with pkgs; [
-    # Python development with Astral tools
-    uv
-    ruff
-    nodePackages.pyright # For better language server support
-    
-    # Tools needed for wezterm and terminal
-    ghostty
-    
-    # Utilities
-    fd
-    ripgrep
-    jq
-    fzf
     bat
-    exa
+    fd
+    fzf
+    ghostty
     htop
+    jq
+    nodePackages.pyright # For better language server support
+    ripgrep
+    ruff
+    uv
   ];
 
   # This value determines the Home Manager release that your

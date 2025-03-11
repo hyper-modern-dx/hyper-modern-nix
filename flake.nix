@@ -4,7 +4,6 @@
   inputs = {
     # Core dependencies
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-23.11";
 
     # Flake infrastructure
     flake-parts.url = "github:hercules-ci/flake-parts";
@@ -44,7 +43,6 @@
       systems = [
         "x86_64-linux"
         "aarch64-linux"
-        "x86_64-darwin"
         "aarch64-darwin"
       ];
 
@@ -96,7 +94,7 @@
             ssh-to-age
             nixpkgs-fmt
             treefmt
-            nil # Nix LSP
+            nixd
           ];
         };
       };

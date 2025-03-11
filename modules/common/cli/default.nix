@@ -13,26 +13,6 @@
   programs.wezterm = {
     enable = true;
     extraConfig = ''
-      return {
-        -- Enable GPU acceleration
-        front_end = "WebGpu",
-        webgpu_power_preference = "HighPerformance",
-        
-        -- Disable features that might cause compatibility issues
-        enable_kitty_keyboard = false,
-        
-        -- Use a larger scrollback
-        scrollback_lines = 10000,
-        
-        -- Configure misc UI settings
-        window_close_confirmation = "NeverPrompt",
-        window_padding = {
-          left = 2,
-          right = 2,
-          top = 2,
-          bottom = 2,
-        },
-      }
     '';
   };
   
@@ -59,18 +39,6 @@
     
     # Helper function for uv environment activation
     initExtra = ''
-      # Python virtual environment handling with uv
-      export UV_SYSTEM_PYTHON="$(which python3)"
-      
-      # Function to create and activate Python virtual environment with uv
-      uvenv() {
-        if [ ! -d ".venv" ]; then
-          echo "Creating new virtual environment..."
-          uv venv
-        fi
-        source .venv/bin/activate
-      }
-      
       # Better history management
       export HISTSIZE=10000
       export HISTFILESIZE=10000
@@ -158,7 +126,7 @@
       lspconfig.nixd.setup{}
       
       -- Python
-      lspconfig.pyright.setup{}
+      -- lspconfig.pyright.setup{}
       
       -- Treesitter
       require('nvim-treesitter.configs').setup {
@@ -190,15 +158,14 @@
 
   # Common command-line utilities
   home.packages = with pkgs; [
-    # Terminal utilities
-    ghostty
     bat             # Better cat
-    exa             # Better ls 
+    eza             # Better ls 
     fd              # Better find
     ripgrep         # Better grep
     fzf             # Fuzzy finder
     jq              # JSON processor
     htop            # Process viewer
+    btop            # Process viewer
     
     # Development tools
     gnumake
@@ -207,7 +174,7 @@
     # Python development
     uv              # Modern Python package manager
     ruff            # Python linter and formatter
-    nodePackages.pyright # Python language server
+    # nodePackages.pyright # Python language server
     
     # Nix development
     nixd            # Nix language server
