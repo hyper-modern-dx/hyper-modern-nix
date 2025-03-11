@@ -5,6 +5,7 @@
 - `home-manager switch` - Apply home configuration
 - `nixos-rebuild switch` - Apply system configuration changes 
 - `nix flake update` - Update flake inputs
+- `sudo nixos-rebuild switch --flake .#watchtower` - Update specific host
 - `treefmt` - Format code across the repository
   TODO[b7r6]: we may want to use treefmt, depends on emacs integration
 - `./install-hyper-modern.sh` - Install dotfiles with automatic backup
@@ -42,6 +43,17 @@
   - Default fonts: JetBrains Mono, Inter
   - No transparency (opacity: 1.0)
 
+## Repository Structure
+- `flake.nix` - Main configuration entrypoint
+- `modules/` - Shared configuration modules
+  - `modules/common/` - Cross-platform shared settings
+  - `modules/nixos/` - NixOS-specific modules
+  - `modules/darwin/` - macOS-specific modules
+  - `modules/home/` - Home-manager specific modules
+- `hosts/` - Host-specific configurations
+  - `hosts/watchtower/` - Example aarch64-linux VM
+- `legacy/` - Reference configurations from previous setup
+
 ## Code Style
 - **Indentation**: 2 spaces
 - **Max Line Length**: 80 columns
@@ -55,18 +67,11 @@
   - TypeScript/JS: `prettier`
   - Shell: `shfmt`
 
-## Repository Structure
-- `flake.nix` - Main NixOS system configuration entrypoint
-- `home.nix` - Home Manager user environment configuration
-- `modules/` - Modular system configurations (nixos/darwin/home/common)
-- `emacs/` - Extensive Emacs configuration with custom libraries
-- `bash/` - Shell configuration scripts
-
 ## Key Features
 - Multi-platform support (x86_64/aarch64, Linux/Darwin)
 - Home Manager integration with declarative package management
 - Emacs setup with format-all-mode and AI assistance
-- Modern terminal integration via vterm
+- Modern terminal integration via ghostty/wezterm
 - Custom shell utilities and keyboard shortcuts
 - Astral Python toolchain (`uv` and `ruff`)
 - Modern Nix development with `nixd`
