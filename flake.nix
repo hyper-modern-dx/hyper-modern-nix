@@ -1,45 +1,102 @@
 {
-  description = "You Must Always Have a Knife in The Darkness...";
+  description = "Personal NixOS configuration with multi-platform support";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # Core dependencies
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-23.11";
 
-    flake-utils = {
-      url = "github:numtide/flake-utils";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # Flake infrastructure
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    flake-utils.url = "github:numtide/flake-utils";
 
+    # Home manager
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-untils.follows = "flake-utils";
+    };
+
+    # Darwin support
+    nix-darwin = {
+      url = "github:LnL7/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Formatting & themes
+    treefmt-nix.url = "github:numtide/treefmt-nix";
+    stylix.url = "github:danth/stylix";
+
+    # Secrets management
+    sops-nix = {
+      url = "github:mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Emacs package management
+    emacs-overlay = {
+      url = "github:nix-community/emacs-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, ... }@inputs:
-    let
-      system = "x86_64-linux";
-      username = builtins.getEnv "USER";
-      homeDirectory = "/home/${username}";
+  outputs = inputs @ { flake-parts, ... }:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
 
-      pkgs = import ./nix/nixpkgs.nix { inherit inputs system; };
+      imports = [
+        inputs.treefmt-nix.flakeModule
+        ./modules/nixos
+        ./modules/darwin
+        ./modules/home
+        ./modules/common
+      ];
 
-      configuration =
-        import ./home.nix { inherit pkgs inputs username homeDirectory; };
+      flake = {
+        # NixOS configurations
+        nixosConfigurations = {
+          # Add your NixOS hosts here
+          # example = lib.nixosSystem { ... };
+        };
 
-    in {
-      homeConfigurations = {
-        "${username}" = inputs.home-manager.lib.homeManagerConfiguration {
-          inherit pkgs;
+        # Darwin configurations
+        darwinConfigurations = {
+          # Add your Darwin hosts here
+          # example-mac = lib.darwinSystem { ... };
+        };
+      };
 
-          modules = [
-            ./home.nix
-            {
-              home = {
-                inherit username homeDirectory;
-                stateVersion = "22.11";
-              };
-            }
+      perSystem = { config, self', pkgs, lib, system, ... }: {
+        # Per-system attributes
+        treefmt.config = {
+          projectRootFile = "flake.nix";
+          programs = {
+            nixpkgs-fmt.enable = true;
+            prettier.enable = true;
+            black.enable = true;
+            shfmt.enable = true;
+          };
+        };
+
+        # Custom packages available on all systems
+        packages = {
+          # Custom Emacs build with eask
+          custom-emacs = import ./pkgs/emacs { inherit pkgs; };
+        };
+
+        # Development shell with useful tools
+        devShells.default = pkgs.mkShell {
+          buildInputs = with pkgs; [
+            sops
+            age
+            ssh-to-age
+            nixpkgs-fmt
+            treefmt
+            nil # Nix LSP
           ];
         };
       };
