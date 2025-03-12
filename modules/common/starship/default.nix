@@ -16,20 +16,20 @@ in
 
       hostname = {
         format = " [$hostname]($style) ";
-        style = "${colors.base0E}"; # Magenta from base16
-        ssh_only = false;
+        style = "${colors.base0D}";
+        ssh_only = true;
         disabled = false;
-      };
-
-      directory = {
-        format = "[$path]($style) ";
-        style = "${colors.base0D}"; # Blue from base16
-        truncate_to_repo = true;
       };
 
       git_branch = {
         format = "[$branch]($style) ";
-        style = "fg:${colors.base09}"; # Orange from base16
+        style = "fg:${colors.base0A}";
+      };
+
+      directory = {
+        format = "[$path]($style) ";
+        style = "${colors.base0B}";
+        truncate_to_repo = true;
       };
 
       character = {

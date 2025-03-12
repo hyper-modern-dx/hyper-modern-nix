@@ -126,5 +126,11 @@ in
     uv
     viddy
     vivid
+
+    google-cloud-sdk-gce
+    hcp
+    terraform
+    terragrunt
+    vault-bin
   ];
 }

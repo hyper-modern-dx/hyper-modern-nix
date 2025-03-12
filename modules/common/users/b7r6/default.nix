@@ -3,6 +3,9 @@
 , pkgs
 , ...
 }:
+let
+  standardEzaFlags = "--icons -F -H --group-directories-first --git -1 --color=always";
+in
 {
   # Import default user configuration
   imports = [
@@ -22,7 +25,14 @@
     userEmail = "b7r6@b7r6.net";
   };
 
-  programs.bash.shellAliases = { };
+  programs.bash.shellAliases = {
+    "l" = "eza ${standardEzaFlags}";
+    "la" = "eza ${standardEzaFlags} --long --all";
+    "lt" = "eza ${standardEzaFlags} --tree --level 2";
+    "ltt" = "eza ${standardEzaFlags} --tree --level 3";
+    "lttt" = "eza ${standardEzaFlags} --tree --level 4";
+    "ltx" = "eza ${standardEzaFlags} --tree --level 99";
+  };
 
   home.packages = with pkgs; [
   ];

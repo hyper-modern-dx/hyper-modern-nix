@@ -32,9 +32,9 @@ in
       system = "aarch64-linux";
     };
 
-    "b7r6@macbook" = mkHomeConfig {
+    "b7r6@galois" = mkHomeConfig {
       username = "b7r6";
-      hostname = "macbook";
+      hostname = "galois";
       system = "aarch64-darwin";
     };
   };

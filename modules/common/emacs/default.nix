@@ -27,7 +27,6 @@ in
       consult
       csv-mode
       dashboard
-      dashboard-hackernews
       direnv
       dirvish
       dockerfile-mode
@@ -42,10 +41,15 @@ in
       general
       gptel
       haskell-mode
+      hcl-mode
+      ht
       json-mode
       just-mode
       language-id
+      llama
+      lsp-mode
       lua-mode
+      lv
       magit
       marginalia
       markdown-mode
@@ -74,6 +78,7 @@ in
       s
       shrink-path
       smartparens
+      spinner
       swift-mode
       terraform-mode
       treesit-auto
@@ -82,17 +87,15 @@ in
       vterm
       wgrep
       which-key
+      with-editor
       yaml-mode
       yapfify
       zig-mode
 
-      llama
-      hcl-mode
-      lsp-mode
-      ht
-      lv
-      spinner
-      with-editor
+      prettier
+      nvm
+      iter2
+      # dashboard-hackernews
     ];
 
     extraConfig = init-el;
@@ -100,20 +103,19 @@ in
 
   # Add needed system packages
   home.packages = with pkgs; [
-    # Essential tools
+    clang-tools
     fd
     nerd-fonts.hack
-    nodejs
+
+    nodePackages_latest.prettier
+    nodePackages_latest.typescript-language-server
+    nodePackages_latest.vscode-langservers-extracted
+    nodePackages_latest.nodejs
+
+    python313Packages.python-lsp-server
     ripgrep
-
-    # Core tree-sitter (needed for grammar compilation)
     tree-sitter
-
-    # Language servers for better IDE experience
-    nodePackages.typescript-language-server
-    nodePackages.vscode-langservers-extracted # HTML/CSS/JSON/ESLint
-    python311Packages.python-lsp-server
-    clang-tools # For C/C++
+    direnv
   ];
 
   # Enable Stylix integration for Emacs

@@ -36,9 +36,12 @@
    (garbage-collect)
    (setq gc-cons-threshold hyper-modern/gc-cons-threshold)))
 
+(setq copy-region-blink-delay 0.01)
+
 ;; ============================================================
 ;; Basic UI improvements
 ;; ============================================================
+
 (menu-bar-mode -1)
 (column-number-mode 1)
 (global-hl-line-mode 1)
