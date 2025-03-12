@@ -1,3 +1,22 @@
+;;; init.el --- -*- lexical-binding: t -*-
+
+;;
+;; "On The Design Of Text Editors" - https://arxiv.org/abs/2008.06030
+;;
+
+;;
+;;
+;; “There is always a point at which the terrorist ceases to manipulate the media
+;;  gestalt. A point at which the violence may well escalate, but beyond which the
+;;  terrorist has become symptomatic of the media gestalt itself. Terrorism as we
+;;  ordinarily understand it is inately media-related. The Panther Moderns differ from
+;;  other terrorists precisely in their degree of self-consciousness, in their
+;;  awareness of the extent to which media divorce the act of terrorism from the
+;;  original sociopolitical intent.”
+;;
+;; “Skip it.” Case said.
+;;
+
 ;; ============================================================
 ;; Memory Management
 ;; ============================================================
@@ -25,9 +44,53 @@
 (global-hl-line-mode 1)
 (setq inhibit-startup-screen t)
 
+;; global built-in modes
+(blink-cursor-mode       +1)
+(column-number-mode      +1)
+(display-time-mode       +1)
+(flymake-mode            -1)
+(global-auto-revert-mode +1)
+(global-hl-line-mode     +1)
+(global-whitespace-mode  -1)
+(menu-bar-mode           -1)
+(show-paren-mode         +1)
+
+(put 'upcase-region 'disabled nil)
+(fset 'yes-or-no-p 'y-or-n-p)
+
+;; Set vertical border to use a continuous line (no dashes)
+(when (boundp 'standard-display-table)
+  ;; Create the display table if it doesn't exist
+  (unless standard-display-table
+    (setq standard-display-table (make-display-table)))
+
+  ;; Set the vertical border character
+  (set-display-table-slot standard-display-table 'vertical-border ?│))
+
+(setq-default visible-bell nil)
+(setq-default ring-bell-function #'ignore)
+
+;; ============================================================
+;; Disable all bold and italics (brutally and completely)
+;; ============================================================
+
+;; Method 1: Override all faces by remapping font weights
+(defun remove-bold-italic-from-all-faces ()
+  "Remove all bold and italic attributes from all faces."
+  (mapc (lambda (face)
+          (when (face-attribute face :weight nil t)
+            (set-face-attribute face nil :weight 'normal))
+          (when (face-attribute face :slant nil t)
+            (set-face-attribute face nil :slant 'normal)))
+        (face-list)))
+
+;; Apply once at startup
+(remove-bold-italic-from-all-faces)
+
 ;; ============================================================
 ;; Themes and visual enhancements
 ;; ============================================================
+
 ;; Gracefully handle nerd-icons (try to load but don't fail if not available)
 (condition-case nil
     (progn
@@ -44,6 +107,7 @@
 ;; ============================================================
 ;; Modern completion framework
 ;; ============================================================
+
 (require 'vertico)
 (require 'orderless)
 (require 'marginalia)
@@ -83,6 +147,7 @@
 ;; ============================================================
 ;; Window management functions
 ;; ============================================================
+
 (defun hyper-modern/scratch ()
   (let ((dir (if buffer-file-name
                  (file-name-directory buffer-file-name)
@@ -129,12 +194,14 @@
 ;; ============================================================
 ;; Modeline configuration
 ;; ============================================================
+
 (require 'doom-modeline)
 (doom-modeline-mode 1)
 
 ;; ============================================================
 ;; Programming mode enhancements
 ;; ============================================================
+
 ;; Rainbow delimiters in programming modes
 (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
 
@@ -155,6 +222,7 @@
 ;; ============================================================
 ;; Better defaults
 ;; ============================================================
+
 (setq-default indent-tabs-mode nil)
 (setq make-backup-files nil)
 (setq auto-save-default nil)
@@ -429,6 +497,7 @@
 ;; ============================================================
 ;; Company Configuration for Completion
 ;; ============================================================
+
 (require 'company)
 (setq company-idle-delay 0.1)
 (setq company-minimum-prefix-length 1)
@@ -440,7 +509,9 @@
 ;; ============================================================
 ;; Magit Configuration
 ;; ============================================================
+
 (require 'magit)
+
 ;; Function to display magit in the rightmost window
 (defun my-magit-display-buffer-function (buffer)
   "Display BUFFER in the rightmost window without splitting."
@@ -457,6 +528,7 @@
 ;; ============================================================
 ;; Compilation Mode
 ;; ============================================================
+
 (require 'compile)
 (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
 
@@ -495,6 +567,7 @@
 ;; ============================================================
 ;; Vterm configuration
 ;; ============================================================
+
 (defun setup-vterm ()
   (when (fboundp 'vterm-mode)
     (setq vterm-keymap-exceptions '("M-/" "M-N" "M-P" "M-i" "M-z"))
@@ -509,6 +582,7 @@
 ;; ============================================================
 ;; TMUX Clipboard Integration
 ;; ============================================================
+
 (defun sync-kill-to-tmux-clipboard (str &rest _)
   "Sync the text added to the kill ring to tmux clipboard."
   (when (and str (getenv "TMUX") (executable-find "tmux"))
@@ -533,18 +607,39 @@
 ;; ============================================================
 ;; Dashboard Configuration
 ;; ============================================================
-(when (require 'dashboard nil t)
-  (dashboard-setup-startup-hook)
 
+(when (require 'dashboard nil t)
+  ;; Create a temporary file with your ASCII art
+  (defvar my-custom-banner-file (make-temp-file "emacs-dashboard-banner-" nil ".txt"))
+
+  ;; Your ASCII art banner
+  (defvar my-custom-banner-text "
+╦ ╦╦ ╦╔═╗╔═╗╦═╗  ╔╦╗╔═╗╔╦╗╔═╗╦═╗╔╗╔
+╠═╣╚╦╝╠═╝║╣ ╠╦╝  ║║║║ ║ ║║║╣ ╠╦╝║║║
+╩ ╩ ╩ ╩  ╚═╝╩╚═  ╩ ╩╚═╝═╩╝╚═╝╩╚═╝╚╝
+")
+
+  ;; Write the banner to the temporary file
+  (with-temp-file my-custom-banner-file
+    (insert my-custom-banner-text))
+
+  ;; Use our temporary file as the banner
+  (setq dashboard-startup-banner my-custom-banner-file)
+
+  ;; Custom title
   (setq dashboard-banner-logo-title
         "it was the style that mattered and the style was the same.
 the moderns were mercenaries, practical jokers, nihilistic tehcnofetishists.")
 
+  ;; Other dashboard settings
   (setq dashboard-center-content t)
   (setq dashboard-set-heading-icons t)
   (setq dashboard-set-file-icons t)
   (setq dashboard-items '((projects . 5)
-                          (recents . 5))))
+                          (recents . 5)))
+
+  ;; Start dashboard
+  (dashboard-setup-startup-hook))
 
 ;; ============================================================
 ;; GPTel Configuration
