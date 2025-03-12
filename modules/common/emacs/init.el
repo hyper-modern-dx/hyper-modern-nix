@@ -36,7 +36,7 @@
    (garbage-collect)
    (setq gc-cons-threshold hyper-modern/gc-cons-threshold)))
 
-(setq copy-region-blink-delay 0.01)
+(setq copy-region-blink-delay 0)
 
 ;; ============================================================
 ;; Basic UI improvements

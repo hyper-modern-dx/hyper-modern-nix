@@ -56,9 +56,9 @@ in
       set -g mode-style "fg=${colors.base05},bg=${colors.base0D}"
 
       # Even more subtle borders using the darkest theme color
-      set -g pane-border-style "fg=${colors.base00},bg=default"
-      set -g pane-active-border-style "fg=${colors.base00},bg=default"
-      
+      set -g pane-border-style "fg=default"
+      set -g pane-active-border-style "fg=default"
+
       # Status line configuration
       set -g status-interval 1
       set -g status-justify right

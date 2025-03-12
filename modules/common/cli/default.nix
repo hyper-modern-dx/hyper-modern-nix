@@ -18,14 +18,6 @@ in
     ../tmux
   ];
 
-  # Terminal configuration
-  programs.wezterm = {
-    enable = true;
-    extraConfig = ''
-    '';
-  };
-
-  # Shell configuration
   programs.bash = {
     enable = true;
     shellAliases = {
@@ -48,7 +40,6 @@ in
     '';
   };
 
-  # Git configuration
   programs.git = {
     enable = true;
 
@@ -79,23 +70,17 @@ in
         updateRefs = true;
       };
     };
-
-    # User identity must be specified by user-specific configuration
   };
 
-  # File listing utilities
   programs.eza = {
     enable = true;
   };
 
-  # Fast directory navigation
   programs.zoxide = {
     enable = true;
     enableBashIntegration = true;
   };
 
-  # Starship prompt
-  # Fuzzy finder
   programs.fzf = {
     enable = true;
     enableBashIntegration = true;
@@ -126,11 +111,18 @@ in
     uv
     viddy
     vivid
+    just
 
     google-cloud-sdk-gce
     hcp
     terraform
     terragrunt
     vault-bin
+
+    claude-code
+    (python313.withPackages
+      (ps: [ ps.llm ps.llm-anthropic ]))
+
+    zig_0_14
   ];
 }

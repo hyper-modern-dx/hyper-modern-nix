@@ -1,16 +1,30 @@
-{
-  config, 
-  pkgs,
-  inputs,
-  ...
+{ config
+, pkgs
+, inputs
+, ...
 }:
-
 {
-  imports = [ 
+  imports = [
     ./hardware-configuration.nix
   ];
 
-  # Create shared directory mount point
+  nix.settings.experimental-features = [ "flakes" "nix-command" ];
+
+  programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [
+  ];
+
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+
+  networking = {
+    hostName = "watchtower";
+    networkmanager.enable = true;
+  };
+
+  services.tailscale.enable = true;
+
+  services.spice-vdagentd.enable = true;
   system.activationScripts = {
     createMountPoints = {
       text = ''
@@ -18,30 +32,10 @@
         chown b7r6:users /mnt/shared
         chmod 775 /mnt/shared
       '';
-      deps = [];
+      deps = [ ];
     };
   };
 
-  # Enable flakes support
-  nix.settings.experimental-features = ["flakes" "nix-command"];
-
-  # Boot configuration
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-
-  # Networking
-  networking = {
-    hostName = "watchtower";
-    networkmanager.enable = true;
-  };
-  
-  # Enable SPICE agent for clipboard sharing with UTM/QEMU
-  services.spice-vdagentd.enable = true;
-
-  # Tailscale VPN
-  services.tailscale.enable = true;
-
-  # Time and locale settings
   time.timeZone = "America/Puerto_Rico";
   i18n = {
     defaultLocale = "en_US.UTF-8";
@@ -58,27 +52,20 @@
     };
   };
 
-  # Enable automatic login for the user
-  services.getty.autologinUser = "b7r6";
 
-  # Package management
   nixpkgs.config.allowUnfree = true;
-  
-  # Host-specific tools and utilities
   environment.systemPackages = with pkgs; [
-    # System monitoring
     btop
+    home-manager
     iotop
-    
-    # QEMU/UTM utilities
     spice-vdagent
     xdg-user-dirs
   ];
 
-  # Docker support
   virtualisation.docker.enable = true;
 
-  # SSH configuration for passwordless login
+  services.getty.autologinUser = "b7r6";
+
   services.openssh = {
     enable = true;
     settings = {
@@ -88,9 +75,5 @@
     };
   };
 
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It's perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  system.stateVersion = "24.11"; # Did you read the comment?
+  system.stateVersion = "24.11";
 }
