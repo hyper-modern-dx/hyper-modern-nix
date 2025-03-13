@@ -1,18 +1,17 @@
 { inputs, ... }:
 {
-  # aarch64-linux hosts
   watchtower = inputs.nixpkgs.lib.nixosSystem {
+    specialArgs = { inherit inputs; };
     system = "aarch64-linux";
+
     modules = [
+      ../modules/stylix
       ./nixos-common.nix
       ./watchtower/configuration.nix
-      ../modules/stylix
-
-      # External modules
       inputs.home-manager.nixosModules.home-manager
       inputs.stylix.nixosModules.stylix
 
-      # Home Manager configuration
+      # TODO[b7r6]: do this properly...
       {
         home-manager = {
           useGlobalPkgs = true;
@@ -31,7 +30,6 @@
               ../modules/stylix
             ];
 
-            # Basic home configuration for Linux
             home = {
               username = "b7r6";
               homeDirectory = "/home/b7r6";
@@ -41,7 +39,5 @@
         };
       }
     ];
-
-    specialArgs = { inherit inputs; };
   };
 }

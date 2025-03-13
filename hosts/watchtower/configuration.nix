@@ -8,12 +8,6 @@
     ./hardware-configuration.nix
   ];
 
-  nix.settings.experimental-features = [ "flakes" "nix-command" ];
-
-  programs.nix-ld.enable = true;
-  programs.nix-ld.libraries = with pkgs; [
-  ];
-
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
@@ -22,9 +16,8 @@
     networkmanager.enable = true;
   };
 
-  services.tailscale.enable = true;
-
   services.spice-vdagentd.enable = true;
+
   system.activationScripts = {
     createMountPoints = {
       text = ''
@@ -53,20 +46,7 @@
   };
 
 
-  nixpkgs.config.allowUnfree = true;
-  environment.systemPackages = with pkgs; [
-    cacert
-    btop
-    home-manager
-    iotop
-    spice-vdagent
-    xdg-user-dirs
-  ];
-
   virtualisation.docker.enable = true;
-
-  services.getty.autologinUser = "b7r6";
-
   services.openssh = {
     enable = true;
     settings = {

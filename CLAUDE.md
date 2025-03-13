@@ -1,9 +1,10 @@
 # NixOS Configuration Guidelines
 
 ## Build Commands
+
 - `nix-shell` - Enter development environment
 - `home-manager switch` - Apply home configuration
-- `nixos-rebuild switch` - Apply system configuration changes 
+- `nixos-rebuild switch` - Apply system configuration changes
 - `nix flake update` - Update flake inputs
 - `sudo nixos-rebuild switch --flake .#watchtower` - Update specific host
 - `treefmt` - Format code across the repository
@@ -11,20 +12,24 @@
 - `./install-hyper-modern.sh` - Install dotfiles with automatic backup
 
 ## Nix Development
+
 - `nixd` - Preferred Nix language server (not nil or rnix-lsp)
 - `nixpkgs-fmt` - Standard formatter for Nix files
 - Ensure proper Emacs integration via eglot/lsp-mode
 
 ## Python Tools (Astral)
+
 - `uv` - Package manager for Python (preferred over pip)
 - `uv2nix` - Generate Nix expressions from Python requirements
 - `ruff` - All-in-one Python linter and formatter (preferred)
 - Interactive usage encouraged for development workflows
 
 ## Stylix Theme Configuration
+
 - **Base16 Palette**:
+
   - Dark background: `#101216`
-  - Selection background: `#161B22` 
+  - Selection background: `#161B22`
   - Comments/secondary: `#5C6370`
   - Primary text: `#bababa`
   - Red: `#f78166`
@@ -44,6 +49,7 @@
   - No transparency (opacity: 1.0)
 
 ## User Management
+
 - Structured as multi-user from the start
 - Core users: `b7r6` and `maskirov`
 - Modular approach:
@@ -58,6 +64,7 @@
   - tmux configured for modern terminals
 
 ## Repository Structure
+
 - `flake.nix` - Main configuration entrypoint
 - `modules/` - Shared configuration modules
   - `modules/common/` - Cross-platform shared settings
@@ -74,14 +81,16 @@
 - `legacy/` - Reference configurations from previous setup
 
 ## Flake Structure Notes
+
 - System-specific settings (users.users, security.sudo) belong in hosts/nixos-common.nix
-- User configurations for Home Manager are in modules/common/users/*
+- User configurations for Home Manager are in modules/common/users/\*
 - Stylix theme is a standalone module imported by host configurations
 - modules/nixos/default.nix only defines flake outputs
 - Each module should only define options valid in its context
 - System modules should be directly imported by hosts, not via flake-parts
 
 ## Code Style
+
 - **Indentation**: 2 spaces
 - **Max Line Length**: 80 columns
 - **Formatting Tools**:
@@ -95,6 +104,7 @@
   - Shell: `shfmt`
 
 ## Key Features
+
 - Multi-platform support (x86_64/aarch64, Linux/Darwin)
 - Multi-user support with shared baseline configuration
 - Home Manager integration with declarative package management
