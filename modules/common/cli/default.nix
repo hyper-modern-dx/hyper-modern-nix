@@ -93,36 +93,70 @@ in
 
   # Common command-line utilities (removing duplicates and using programs options where available)
   home.packages = with pkgs; [
+    awscli2
+    beautysh
+    biome
     btop
+    bun
+    cacert
+    clang-tools
+    clang-tools_19
+    direnv
     duf
     dust
+    fd
     fd
     gcc
     glow
     gnumake
+    google-cloud-sdk-gce
+    hclfmt
+    hcp
     htop
     jq
+    just
+    nerd-fonts.hack
     nixd
     nixpkgs-fmt
+    nodePackages_latest.nodejs
+    nodePackages_latest.prettier
+    nodePackages_latest.prettier
+    nodePackages_latest.typescript-language-server
+    nodePackages_latest.vscode-langservers-extracted
+    openssl
+    openssl.dev
+    pkg-config
+    python313Packages.python-lsp-server
     ripgrep
+    ripgrep
+    rubocop
+    ruby_3_1
     ruff
+    ruff
+    shellcheck
     shfmt
-    tmux
-    uv
-    viddy
-    vivid
-    just
-
-    google-cloud-sdk-gce
-    hcp
+    shfmt
+    solargraph
+    statix
+    taplo
     terraform
     terragrunt
+    toml-sort
+    tree-sitter
+    treefmt
+    typescript
+    typescript-language-server
+    uv
     vault-bin
+    viddy
+    vivid
+    yarn
+    zig
+    zls
 
+    # AI stuff...
     claude-code
     (python313.withPackages
       (ps: [ ps.llm ps.llm-anthropic ]))
-
-    zig_0_14
   ];
 }

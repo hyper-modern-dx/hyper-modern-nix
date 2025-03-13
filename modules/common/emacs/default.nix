@@ -17,6 +17,7 @@ in
     extraPackages = epkgs: with epkgs; [
       all-the-icons
       all-the-icons-completion
+      apheleia
       autothemer
       base16-theme
       bazel
@@ -43,6 +44,7 @@ in
       haskell-mode
       hcl-mode
       ht
+      iter2
       json-mode
       just-mode
       language-id
@@ -59,11 +61,13 @@ in
       nerd-icons-completion
       nix-mode
       nixpkgs-fmt
+      nvm
       orderless
       org-bullets
       paredit
       paredit-everywhere
       posframe
+      prettier
       prettier
       prisma-mode
       projectile
@@ -82,6 +86,7 @@ in
       swift-mode
       terraform-mode
       treesit-auto
+      treesit-grammars.with-all-grammars
       typescript-mode
       vertico
       vterm
@@ -91,33 +96,18 @@ in
       yaml-mode
       yapfify
       zig-mode
-
-      prettier
-      nvm
-      iter2
-      # dashboard-hackernews
     ];
 
     extraConfig = init-el;
   };
 
-  # Add needed system packages
   home.packages = with pkgs; [
-    clang-tools
-    fd
-    nerd-fonts.hack
-
-    nodePackages_latest.prettier
-    nodePackages_latest.typescript-language-server
-    nodePackages_latest.vscode-langservers-extracted
-    nodePackages_latest.nodejs
-
-    python313Packages.python-lsp-server
-    ripgrep
-    tree-sitter
-    direnv
   ];
 
-  # Enable Stylix integration for Emacs
+  home.file = {
+    ".emacs.d/lib".source = ./lib;
+    ".emacs.d/themes".source = ./themes;
+  };
+
   stylix.targets.emacs.enable = true;
 }

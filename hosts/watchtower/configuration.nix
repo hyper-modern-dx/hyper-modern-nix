@@ -55,6 +55,7 @@
 
   nixpkgs.config.allowUnfree = true;
   environment.systemPackages = with pkgs; [
+    cacert
     btop
     home-manager
     iotop

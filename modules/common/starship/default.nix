@@ -16,7 +16,7 @@ in
 
       hostname = {
         format = " [$hostname]($style) ";
-        style = "${colors.base0D}";
+        style = "${colors.base0B}";
         ssh_only = true;
         disabled = false;
       };
@@ -28,14 +28,14 @@ in
 
       directory = {
         format = "[$path]($style) ";
-        style = "${colors.base0B}";
+        style = "${colors.base0D}";
         truncate_to_repo = true;
       };
 
       character = {
         format = "[//](fg:${colors.base03}) ";
         success_symbol = "[//](fg:${colors.base03})";
-        error_symbol = "[//](fg:${colors.base08})"; # Red from base16
+        error_symbol = "[//](fg:${colors.base0D})";
         disabled = false;
       };
 

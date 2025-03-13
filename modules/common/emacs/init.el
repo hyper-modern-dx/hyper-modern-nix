@@ -18,6 +18,19 @@
 ;;
 
 ;; ============================================================
+;; hyper // modern // themes
+;; ============================================================
+
+;; TODO[b7r6]: this is a mess...
+;; (add-to-list 'load-path "~/.emacs.d/lib/")
+;; (add-to-list 'load-path "~/.emacs.d/themes/")
+
+(load-library "~/.emacs.d/lib/smart-split.el")
+
+(load-library "~/.emacs.d/themes/ono-sendai.el")
+(enable-theme 'base16-ono-sendai)
+
+;; ============================================================
 ;; Memory Management
 ;; ============================================================
 (defvar hyper-modern/gc-cons-threshold (* 256 1024 1024))
@@ -237,81 +250,87 @@
 ;; ============================================================
 ;; Tree-sitter Configuration
 ;; ============================================================
-(require 'treesit-auto)
+;; ;; Define the language sources
+;; (setq
+;;  treesit-language-source-alist
+;;  '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+;;    (cmake "https://github.com/uyha/tree-sitter-cmake")
+;;    (css "https://github.com/tree-sitter/tree-sitter-css")
+;;    (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+;;    (go "https://github.com/tree-sitter/tree-sitter-go")
+;;    (html "https://github.com/tree-sitter/tree-sitter-html")
+;;    (javascript
+;;     "https://github.com/tree-sitter/tree-sitter-javascript"
+;;     "master" "src")
+;;    (json "https://github.com/tree-sitter/tree-sitter-json")
+;;    (make "https://github.com/alemuller/tree-sitter-make")
+;;    (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+;;    (python "https://github.com/tree-sitter/tree-sitter-python")
+;;    (ruby "https://github.com/tree-sitter/tree-sitter-ruby")
+;;    (toml "https://github.com/tree-sitter/tree-sitter-toml")
+;;    (tsx
+;;     "https://github.com/tree-sitter/tree-sitter-typescript"
+;;     "master" "tsx/src")
+;;    (typescript
+;;     "https://github.com/tree-sitter/tree-sitter-typescript"
+;;     "master" "typescript/src")
+;;    (yaml "https://github.com/ikatyang/tree-sitter-yaml")
+;;    (c "https://github.com/tree-sitter/tree-sitter-c")
+;;    (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+;;    (java "https://github.com/tree-sitter/tree-sitter-java")
+;;    (haskell "https://github.com/tree-sitter/tree-sitter-haskell")
+;;    (nix "https://github.com/nix-community/tree-sitter-nix")
+;;    (dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile")))
 
-;; Define the language sources
-(setq
- treesit-language-source-alist
- '((bash "https://github.com/tree-sitter/tree-sitter-bash")
-   (cmake "https://github.com/uyha/tree-sitter-cmake")
-   (css "https://github.com/tree-sitter/tree-sitter-css")
-   (elisp "https://github.com/Wilfred/tree-sitter-elisp")
-   (go "https://github.com/tree-sitter/tree-sitter-go")
-   (html "https://github.com/tree-sitter/tree-sitter-html")
-   (javascript
-    "https://github.com/tree-sitter/tree-sitter-javascript"
-    "master" "src")
-   (json "https://github.com/tree-sitter/tree-sitter-json")
-   (make "https://github.com/alemuller/tree-sitter-make")
-   (markdown "https://github.com/ikatyang/tree-sitter-markdown")
-   (python "https://github.com/tree-sitter/tree-sitter-python")
-   (ruby "https://github.com/tree-sitter/tree-sitter-ruby")
-   (toml "https://github.com/tree-sitter/tree-sitter-toml")
-   (tsx
-    "https://github.com/tree-sitter/tree-sitter-typescript"
-    "master" "tsx/src")
-   (typescript
-    "https://github.com/tree-sitter/tree-sitter-typescript"
-    "master" "typescript/src")
-   (yaml "https://github.com/ikatyang/tree-sitter-yaml")
-   (c "https://github.com/tree-sitter/tree-sitter-c")
-   (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
-   (java "https://github.com/tree-sitter/tree-sitter-java")
-   (haskell "https://github.com/tree-sitter/tree-sitter-haskell")
-   (nix "https://github.com/nix-community/tree-sitter-nix")
-   (dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile")))
+;; ;; Function to install all grammars
+;; (defun ensure-treesit-languages ()
+;;   "Ensure all languages in treesit-language-source-alist are installed."
+;;   (dolist (lang-source treesit-language-source-alist)
+;;     (let ((lang (car lang-source)))
+;;       (unless (treesit-language-available-p lang)
+;;         (message "Installing tree-sitter grammar for %s" lang)
+;;         (treesit-install-language-grammar lang)))))
 
-;; Function to install all grammars
-(defun ensure-treesit-languages ()
-  "Ensure all languages in treesit-language-source-alist are installed."
-  (dolist (lang-source treesit-language-source-alist)
-    (let ((lang (car lang-source)))
-      (unless (treesit-language-available-p lang)
-        (message "Installing tree-sitter grammar for %s" lang)
-        (treesit-install-language-grammar lang)))))
-
-;; Install grammars when tree-sitter is available
-(when (treesit-available-p)
-  (ensure-treesit-languages))
+;; ;; Install grammars when tree-sitter is available
+;; (when (treesit-available-p)
+;;   (ensure-treesit-languages))
 
 ;; Enable treesit-auto mode
+
+(require 'treesit-auto)
 (global-treesit-auto-mode)
 
-;; ============================================================
-;; Format-all configuration
-;; ============================================================
-(require 'format-all)
+(require 'treesit)
+(add-to-list 'major-mode-remap-alist '(python-mode . python-mode))
 
-;; Set up default formatters for different languages
-(setq format-all-default-formatters
-      '(("Nix" nixpkgs-fmt)
-        ("Python" (ruff-format))
-        ("TypeScript" prettier)
-        ("TSX" prettier)
-        ("JavaScript" prettier)
-        ("JSON" prettier)
-        ("HTML" prettier)
-        ("CSS" prettier)
-        ("YAML" prettier)
-        ("Markdown" prettier)
-        ("C" clang-format)
-        ("C++" clang-format)
-        ("Java" clang-format)
-        ("Rust" rustfmt)
-        ("Swift" swift-format)))
+;; ============================================================
+;; apheleia
+;; ============================================================
+(require 'apheleia)
+(apheleia-global-mode +1)
 
-;; Add format-all to prog-mode
-(add-hook 'prog-mode-hook 'format-all-mode)
+;; (require 'format-all)
+
+;; ;; Set up default formatters for different languages
+;; (setq format-all-default-formatters
+;;       '(("Nix" nixpkgs-fmt)
+;;         ("Python" (ruff-format))
+;;         ("TypeScript" prettier)
+;;         ("TSX" prettier)
+;;         ("JavaScript" prettier)
+;;         ("JSON" prettier)
+;;         ("HTML" prettier)
+;;         ("CSS" prettier)
+;;         ("YAML" prettier)
+;;         ("Markdown" prettier)
+;;         ("C" clang-format)
+;;         ("C++" clang-format)
+;;         ("Java" clang-format)
+;;         ("Rust" rustfmt)
+;;         ("Swift" swift-format)))
+
+;; ;; Add format-all to prog-mode
+;; (add-hook 'prog-mode-hook 'format-all-mode)
 
 ;; ============================================================
 ;; Language-specific configurations
@@ -319,18 +338,21 @@
 
 ;; --- Nix ---
 (require 'nix-mode)
+
 (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-mode))
 (with-eval-after-load 'nix-mode
-  (define-key nix-mode-map (kbd "M-z") 'nixpkgs-fmt-buffer))
+  ;; (define-key nix-mode-map (kbd "M-z") 'nixpkgs-fmt-buffer)
+  )
 
 ;; --- Python ---
 (require 'python)
 (add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
 (with-eval-after-load 'python
-  (define-key python-mode-map (kbd "M-z")
-              (lambda ()
-                (interactive)
-                (ruff-format-buffer))))
+  ;; (define-key python-mode-map (kbd "M-z")
+  ;;             (lambda ()
+  ;;               (interactive)
+  ;;               (ruff-format-buffer)))
+  )
 
 ;; --- JavaScript / TypeScript ---
 (require 'typescript-ts-mode)
@@ -355,42 +377,47 @@
 ;; --- C/C++ ---
 (require 'cc-mode)
 (with-eval-after-load 'cc-mode
-  (define-key c-mode-map (kbd "M-z") 'clang-format-buffer)
-  (define-key c++-mode-map (kbd "M-z") 'clang-format-buffer))
+  ;; (define-key c-mode-map (kbd "M-z") 'clang-format-buffer)
+  ;; (define-key c++-mode-map (kbd "M-z") 'clang-format-buffer)
+  )
 
 ;; --- Java ---
 (when (fboundp 'java-ts-mode)
   (add-to-list 'auto-mode-alist '("\\.java\\'" . java-ts-mode))
   (with-eval-after-load 'java-ts-mode
-    (define-key java-ts-mode-map (kbd "M-z") 'clang-format-buffer)))
+    ;; (define-key java-ts-mode-map (kbd "M-z") 'clang-format-buffer)
+    ))
 
 ;; --- JSON ---
 (when (fboundp 'json-ts-mode)
   (add-to-list 'auto-mode-alist '("\\.json\\'" . json-ts-mode))
   (with-eval-after-load 'json-ts-mode
-    (define-key json-ts-mode-map (kbd "M-z")
-                (lambda ()
-                  (interactive)
-                  (prettier-format-buffer)))))
+    ;; (define-key json-ts-mode-map (kbd "M-z")
+    ;;             (lambda ()
+    ;;               (interactive)
+    ;;               (prettier-format-buffer)))
+    ))
 
 ;; --- YAML ---
 (require 'yaml-mode)
 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
 (add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-mode))
 (with-eval-after-load 'yaml-mode
-  (define-key yaml-mode-map (kbd "M-z")
-              (lambda ()
-                (interactive)
-                (prettier-format-buffer))))
+  ;; (define-key yaml-mode-map (kbd "M-z")
+  ;;             (lambda ()
+  ;;               (interactive)
+  ;;               (prettier-format-buffer)))
+  )
 
 ;; --- Markdown ---
 (require 'markdown-mode)
 (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
 (with-eval-after-load 'markdown-mode
-  (define-key markdown-mode-map (kbd "M-z")
-              (lambda ()
-                (interactive)
-                (prettier-format-buffer))))
+  ;; (define-key markdown-mode-map (kbd "M-z")
+  ;;             (lambda ()
+  ;;               (interactive)
+  ;;               (prettier-format-buffer)))
+  )
 
 ;; --- Lua ---
 (require 'lua-mode)
@@ -402,25 +429,28 @@
 
 ;; --- Rust ---
 (with-eval-after-load 'rust-mode
-  (define-key rust-mode-map (kbd "M-z") 'rustfmt-format-buffer))
+  ;; (define-key rust-mode-map (kbd "M-z") 'rustfmt-format-buffer)
+  )
 
 ;; --- Swift ---
 (require 'swift-mode)
 (add-to-list 'auto-mode-alist '("\\.swift\\'" . swift-mode))
 (with-eval-after-load 'swift-mode
-  (define-key swift-mode-map (kbd "M-z") 'swift-format-buffer))
+  ;; (define-key swift-mode-map (kbd "M-z") 'swift-format-buffer)
+  )
 
 ;; --- F# ---
 (require 'fsharp-mode)
 (add-to-list 'auto-mode-alist '("\\.fs[iylx]?\\'" . fsharp-mode))
 (with-eval-after-load 'fsharp-mode
-  (define-key fsharp-mode-map (kbd "M-z")
-              (lambda ()
-                (interactive)
-                (save-excursion
-                  (mark-whole-buffer)
-                  (call-interactively 'fsharp-indent-region)
-                  (deactivate-mark)))))
+  ;; (define-key fsharp-mode-map (kbd "M-z")
+  ;;             (lambda ()
+  ;;               (interactive)
+  ;;               (save-excursion
+  ;;                 (mark-whole-buffer)
+  ;;                 (call-interactively 'fsharp-indent-region)
+  ;;                 (deactivate-mark))))
+  )
 
 ;; --- Terraform ---
 (require 'terraform-mode)
@@ -461,8 +491,19 @@
              '((typescript-ts-mode tsx-ts-mode js-ts-mode jsx-ts-mode)
                . ("typescript-language-server" "--stdio")))
 
+;; (add-to-list 'eglot-server-programs
+;;              '(python-mode . ("pyright")))
+
+;; Configure ruff-lsp initialization options
+
 (add-to-list 'eglot-server-programs
-             '(python-mode . ("pylsp")))
+             '(python-mode . ("pyright-langserver" "--stdio")))
+
+;; If you're using both ruff-lsp and another server like pyright
+;; Make them work together by specifying which server handles what
+(setq-default eglot-workspace-configuration
+              '((:ruff-lsp . (:organizeImports (:enabled t)))
+                (:pyright . (:disableOrganizeImports t))))
 
 (add-to-list 'eglot-server-programs
              '((c-mode c++-mode) . ("clangd")))
@@ -556,7 +597,7 @@
  "M-/"     'undo
  "M-N"     'windmove-right
  "M-P"     'windmove-left
- "M-z"     'format-all-region-or-buffer  ;; Global fallback for M-z
+ "M-z"     'apheleia-format-buffer
 
  ;; hyper-modern overrides
  "C-M-r"   'consult-ripgrep
@@ -656,3 +697,5 @@ the moderns were mercenaries, practical jokers, nihilistic tehcnofetishists.")
 ;; ============================================================
 (when (require 'dirvish nil t)
   (dirvish-override-dired-mode))
+
+(smart-split)

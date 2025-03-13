@@ -1,7 +1,7 @@
 { config, lib, pkgs, modulesPath, ... }:
 
 {
-  imports = [ 
+  imports = [
     (modulesPath + "/profiles/qemu-guest.nix")
   ];
 
@@ -15,7 +15,7 @@
     device = "/dev/disk/by-uuid/128bd4e0-78df-4259-815f-8e541f7d15ae";
     fsType = "ext4";
   };
-  
+
   fileSystems."/boot" = {
     device = "/dev/disk/by-uuid/2069-DC8B";
     fsType = "vfat";
