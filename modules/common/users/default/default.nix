@@ -7,18 +7,18 @@
   # Default user configuration that applies to all users
   # Individual users can override these defaults in their specific config
 
-  # Import CLI tool configurations
+  # TODO[b7r6]: get this moved...
   imports = [
     ../../cli
-    ../atuin
-    ../bash
-    ../emacs
-    ../ghostty
-    ../git
-    ../starship
-    ../tmux
-    ../toolchains
-    ../wezterm
+    ../../atuin
+    ../../bash
+    ../../emacs
+    ../../ghostty
+    ../../git
+    ../../starship
+    ../../tmux
+    ../../toolchains
+    ../../wezterm
   ];
 
   # Home Manager default configuration

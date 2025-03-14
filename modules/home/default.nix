@@ -20,6 +20,7 @@ let
       modules = [
         ../common/users/${username}
         ../stylix
+        ../wayland
         inputs.stylix.homeManagerModules.stylix
       ];
     };
