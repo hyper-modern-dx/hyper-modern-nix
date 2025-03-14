@@ -10,6 +10,15 @@
   # Import CLI tool configurations
   imports = [
     ../../cli
+    ../atuin
+    ../bash
+    ../emacs
+    ../ghostty
+    ../git
+    ../starship
+    ../tmux
+    ../toolchains
+    ../wezterm
   ];
 
   # Home Manager default configuration

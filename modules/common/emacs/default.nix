@@ -96,6 +96,8 @@ in
       yaml-mode
       yapfify
       zig-mode
+
+      clipetty
     ];
 
     extraConfig = init-el;

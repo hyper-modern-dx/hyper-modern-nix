@@ -32,6 +32,12 @@ in
       system = "aarch64-linux";
     };
 
+    "b7r6@beratna" = mkHomeConfig {
+      username = "b7r6";
+      hostname = "beratna";
+      system = "x86_64-linux";
+    };
+
     "b7r6@galois" = mkHomeConfig {
       username = "b7r6";
       hostname = "galois";

@@ -107,7 +107,7 @@
 (add-hook 
  'after-init-hook
  (lambda ()
-   (load-theme 'base16-ono-sendai t)
+   ;; (load-theme 'base16-ono-sendai t)
    (smart-split)))
 
 (condition-case nil
@@ -481,6 +481,18 @@
 ;; ============================================================
 ;; tmux // copy // paste
 ;; ============================================================
+
+;; (unless window-system
+;;   (require 'xterm-clipboard-mode nil t)
+;;   (xterm-clipboard-mode 1))
+
+;; (setq select-enable-clipboard t)
+;; (setq select-enable-primary t)
+;; (setq save-interprogram-paste-before-kill t)
+
+(use-package clipetty
+  :ensure t
+  :hook (after-init . global-clipetty-mode))
 
 (defun sync-kill-to-tmux-clipboard (str &rest _)
   "Sync the text added to the kill ring to tmux clipboard."

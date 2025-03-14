@@ -5,13 +5,6 @@
 }:
 {
   imports = [
-    ../atuin
-    ../bash
-    ../emacs
-    ../git
-    ../starship
-    ../toolchains
-    ../tmux
   ];
 
   programs.bat = {
@@ -47,6 +40,9 @@
     vivid
 
     nerd-fonts.hack
+    xclip
+    wl-clipboard
+    telegram-desktop
 
     # TODO[b7r6]: fix ``dog`...`
     # dog

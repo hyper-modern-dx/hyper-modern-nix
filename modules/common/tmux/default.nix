@@ -21,6 +21,10 @@ in
     extraConfig = ''
       # Use a well-supported terminal type
       set -g default-terminal "tmux-256color"
+
+      set -ag update-environment "SSH_TTY"
+      # set -s set-clipboard on
+      set -g allow-passthrough on
       
       # Enable true color support for both terminals without changing terminal type
       set -ga terminal-overrides ",xterm-256color:RGB"
